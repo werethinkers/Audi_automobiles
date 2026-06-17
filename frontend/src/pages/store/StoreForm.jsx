@@ -65,26 +65,26 @@ export default function StoreForm() {
   }
  
   return (
-    <div className="p-6 space-y-6 font-sans max-w-2xl">
+    <div className="space-y-5 max-w-2xl">
       <PageHeader
         title={isEdit ? 'Edit Store Profile' : 'Add New Store'}
         breadcrumb={['Masters', 'Stores', isEdit ? 'Edit' : 'New']}
       />
  
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Store Name *</label>
             <input
               type="text" required value={storeName} onChange={e => setStoreName(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] text-sm"
             />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Location</label>
             <input
               type="text" value={location} onChange={e => setLocation(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] text-sm"
             />
           </div>
           {isEdit && (
@@ -118,7 +118,7 @@ export default function StoreForm() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-colors cursor-pointer"
             >
               Save Changes
             </button>
