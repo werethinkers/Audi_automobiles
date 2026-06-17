@@ -86,13 +86,13 @@ export default function VendorForm() {
   }
  
   return (
-    <div className="p-6 space-y-6 font-sans max-w-4xl">
+    <div className="space-y-5 max-w-4xl">
       <PageHeader
         title={isEdit ? 'Edit Vendor Profile' : 'Add New Vendor'}
         breadcrumb={['Masters', 'Vendors', isEdit ? 'Edit' : 'New']}
       />
  
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
@@ -193,7 +193,7 @@ export default function VendorForm() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-colors cursor-pointer"
             >
               Save Changes
             </button>
