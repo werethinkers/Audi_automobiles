@@ -1,0 +1,50 @@
+# Virtual Environment
+backend/venv/
+venv/
+env/
+.venv/
+ENV/
+
+# Secrets & Local Configuration
+.env
+backend/.env
+frontend/.env
+*.env
+
+# Dependency Directories
+frontend/node_modules/
+node_modules/
+
+# Python Cache & Compilations
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Diagnostic/Output logs
+backend/ingestion_errors.csv
+*.log
+
+# Frontend Build Outputs
+frontend/dist/
+frontend/build/
+dist/
+build/
+
+# OS Specific
+.DS_Store
+Thumbs.db
