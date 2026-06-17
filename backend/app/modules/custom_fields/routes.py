@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.rm_models import EntityCustomField, EntityCustomFieldValue
+from app.models.rm_models import CustomFieldDefinition, EntityCustomFieldValues
 from .schemas import (
     CustomFieldCreate, CustomFieldUpdate, CustomFieldResponse,
     CustomFieldValueBulkSave, CustomFieldValueResponse
@@ -23,13 +23,13 @@ async def list_custom_fields(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    stmt = select(EntityCustomField)
+    stmt = select(CustomFieldDefinition)
     if entity_type:
-        stmt = stmt.where(EntityCustomField.entity_type == entity_type)
+        stmt = stmt.where(CustomFieldDefinition.entity_type == entity_type)
     if is_active is not None and is_active.lower() not in ('null', 'none', ''):
         active_val = is_active.lower() in ('true', '1', 'yes')
-        stmt = stmt.where(EntityCustomField.is_active == active_val)
-    stmt = stmt.order_by(EntityCustomField.sort_order.asc())
+        stmt = stmt.where(CustomFieldDefinition.is_active == active_val)
+    stmt = stmt.order_by(CustomFieldDefinition.display_order.asc())
     result = await db.execute(stmt)
     return list(result.scalars().all())
  
@@ -37,17 +37,18 @@ async def list_custom_fields(
 async def create_custom_field(
     data: CustomFieldCreate,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_current_user)
+    user=Depends(get_current_user)
 ):
-    stmt = select(EntityCustomField).where(
-        EntityCustomField.entity_type == data.entity_type,
-        EntityCustomField.field_key == data.field_key
+    stmt = select(CustomFieldDefinition).where(
+        CustomFieldDefinition.entity_type == data.entity_type,
+        CustomFieldDefinition.field_key == data.field_key
     )
     result = await db.execute(stmt)
     if result.scalar_one_or_none():
         raise HTTPException(400, f"Field key '{data.field_key}' already exists for entity '{data.entity_type}'")
         
-    cf = EntityCustomField(**data.model_dump(exclude_none=True))
+    cf = CustomFieldDefinition(**data.model_dump(exclude_none=True))
+    cf.created_by = user.user_id
     db.add(cf)
     await db.flush()
     await db.refresh(cf)
@@ -60,7 +61,7 @@ async def update_custom_field(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    cf = await db.get(EntityCustomField, field_id)
+    cf = await db.get(CustomFieldDefinition, field_id)
     if not cf:
         raise HTTPException(404, 'Custom field definition not found')
         
@@ -78,7 +79,7 @@ async def delete_custom_field(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    cf = await db.get(EntityCustomField, field_id)
+    cf = await db.get(CustomFieldDefinition, field_id)
     if not cf:
         raise HTTPException(404, 'Custom field definition not found')
     cf.is_active = False
@@ -92,9 +93,9 @@ async def get_custom_field_values(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    stmt = select(EntityCustomFieldValue).where(
-        EntityCustomFieldValue.entity_type == entity_type,
-        EntityCustomFieldValue.entity_id == entity_id
+    stmt = select(EntityCustomFieldValues).where(
+        EntityCustomFieldValues.entity_type == entity_type,
+        EntityCustomFieldValues.entity_id == entity_id
     )
     result = await db.execute(stmt)
     return list(result.scalars().all())
@@ -108,10 +109,10 @@ async def save_custom_field_values(
     saved_values = []
     
     for val in data.values:
-        stmt = select(EntityCustomFieldValue).where(
-            EntityCustomFieldValue.field_id == val.field_id,
-            EntityCustomFieldValue.entity_type == data.entity_type,
-            EntityCustomFieldValue.entity_id == data.entity_id
+        stmt = select(EntityCustomFieldValues).where(
+            EntityCustomFieldValues.field_id == val.field_id,
+            EntityCustomFieldValues.entity_type == data.entity_type,
+            EntityCustomFieldValues.entity_id == data.entity_id
         )
         result = await db.execute(stmt)
         existing = result.scalar_one_or_none()
@@ -120,7 +121,7 @@ async def save_custom_field_values(
             existing.field_value = val.field_value
             saved_values.append(existing)
         else:
-            new_val = EntityCustomFieldValue(
+            new_val = EntityCustomFieldValues(
                 field_id=val.field_id,
                 entity_type=data.entity_type,
                 entity_id=data.entity_id,

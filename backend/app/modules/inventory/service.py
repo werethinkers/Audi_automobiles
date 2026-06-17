@@ -5,11 +5,11 @@ from app.models.rm_models import RmInventory, RmInventoryLog, RmConsumptionLog
 from decimal import Decimal
 from datetime import datetime, date
 import uuid
- 
+
 class InventoryService:
     def __init__(self, db: AsyncSession):
         self.db = db
- 
+
     async def get_balance(self, rm_id: uuid.UUID, store_id: uuid.UUID) -> Decimal:
         result = await self.db.execute(
             select(RmInventory).where(
@@ -18,11 +18,11 @@ class InventoryService:
             ).with_for_update()  # <-- ROW LOCK — never remove this
         )
         inv = result.scalar_one_or_none()
-        return inv.current_qty if inv else Decimal('0.0')
- 
+        return inv.current_stock_pcs if inv else Decimal('0.0')
+
     async def post_transaction(
-        self, rm_id, store_id, qty: Decimal,
-        transaction_type: str, reference_type=None,
+        self, rm_id, store_id, change_qty: Decimal,
+        transaction_type: str, user_id: uuid.UUID, reference_type=None,
         reference_id=None, remarks=None
     ):
         # 1. Get current balance WITH row lock
@@ -32,82 +32,88 @@ class InventoryService:
             .with_for_update()
         )
         inv = result.scalar_one_or_none()
- 
-        balance_before = inv.current_qty if inv else Decimal('0.0')
-        balance_after  = balance_before + qty
- 
+
+        balance_before = inv.current_stock_pcs if inv else Decimal('0.0')
+        balance_after  = balance_before + change_qty
+
         # 2. Guard: block negative balance
         if balance_after < 0:
             raise ValueError(
-                f'Insufficient stock. Available: {balance_before}, Requested: {abs(qty)}'
+                f'Insufficient stock. Available: {balance_before}, Requested: {abs(change_qty)}'
             )
- 
+
         # 3. Upsert balance row
         if inv:
-            inv.current_qty = balance_after
+            inv.current_stock_pcs = balance_after
             inv.last_updated = datetime.utcnow()
         else:
             inv = RmInventory(
                 rm_id=rm_id, store_id=store_id,
-                current_qty=balance_after,
+                current_stock_pcs=balance_after,
                 last_updated=datetime.utcnow()
             )
             self.db.add(inv)
- 
+
         # 4. Write immutable log entry
         self.db.add(RmInventoryLog(
             rm_id=rm_id, store_id=store_id,
             transaction_type=transaction_type,
-            qty=qty,
+            change_quantity_pcs=change_qty,
             balance_before=balance_before,
-            balance_after=balance_after,
+            new_quantity_after_change=balance_after,
             reference_type=reference_type,
             reference_id=reference_id,
             remarks=remarks,
-            created_at=datetime.utcnow()
+            transaction_date=datetime.utcnow(),
+            updated_by=user_id
         ))
- 
+
         await self.db.flush()
         return balance_after
- 
+
     async def consume(
-        self, rm_id, store_id, qty: Decimal,
-        consumed_date: date, description=None, remarks=None
+        self, rm_id, store_id, qty_used: Decimal,
+        usage_date: datetime, user_id: uuid.UUID, weight_used_kg: Decimal = None, planned_date: date = None, description=None, remarks=None
     ):
         # Post stock OUT transaction
         new_balance = await self.post_transaction(
-            rm_id, store_id, -qty,  # negative = debit
+            rm_id, store_id, -qty_used,  # negative = debit
             transaction_type='CONSUMPTION',
+            user_id=user_id,
             reference_type='MANUAL',
             remarks=remarks
         )
         # Write consumption log
         self.db.add(RmConsumptionLog(
             rm_id=rm_id, store_id=store_id,
-            qty_used=qty, consumption_type='MANUAL',
-            consumed_date=consumed_date,
+            qty_used=qty_used, consumption_type='MANUAL',
+            usage_date=usage_date,
+            weight_used_kg=weight_used_kg,
+            planned_date=planned_date,
             description=description, remarks=remarks,
+            updated_by=user_id
         ))
         await self.db.flush()
         return new_balance
- 
+
     async def grn_post(
-        self, rm_id, store_id, accepted_qty: Decimal, grn_id
+        self, rm_id, store_id, accepted_qty: Decimal, grn_id, user_id: uuid.UUID
     ):
         return await self.post_transaction(
             rm_id, store_id, accepted_qty,  # positive = credit
             transaction_type='GRN_RECEIPT',
+            user_id=user_id,
             reference_type='GRN', reference_id=grn_id
         )
- 
+
     async def transfer(
-        self, rm_id, from_store_id, to_store_id, qty: Decimal, remarks=None
+        self, rm_id, from_store_id, to_store_id, change_qty: Decimal, user_id: uuid.UUID, remarks=None
     ):
         # Always lock in consistent order to avoid deadlock
         ids = sorted([str(from_store_id), str(to_store_id)])
         if ids[0] == str(from_store_id):
-            await self.post_transaction(rm_id, from_store_id, -qty, 'TRANSFER_OUT', remarks=remarks)
-            await self.post_transaction(rm_id, to_store_id, qty, 'TRANSFER_IN', remarks=remarks)
+            await self.post_transaction(rm_id, from_store_id, -change_qty, 'TRANSFER_OUT', user_id, remarks=remarks)
+            await self.post_transaction(rm_id, to_store_id, change_qty, 'TRANSFER_IN', user_id, remarks=remarks)
         else:
-            await self.post_transaction(rm_id, to_store_id, qty, 'TRANSFER_IN', remarks=remarks)
-            await self.post_transaction(rm_id, from_store_id, -qty, 'TRANSFER_OUT', remarks=remarks)
+            await self.post_transaction(rm_id, to_store_id, change_qty, 'TRANSFER_IN', user_id, remarks=remarks)
+            await self.post_transaction(rm_id, from_store_id, -change_qty, 'TRANSFER_OUT', user_id, remarks=remarks)
