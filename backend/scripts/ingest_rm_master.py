@@ -137,13 +137,13 @@ async def ingest_pipeline(file_path, dry_run=False):
         stmt_mt = select(MaterialTypeMaster)
         res_mt = await session.execute(stmt_mt)
         existing_mts = res_mt.scalars().all()
-        material_type_lookup = {mt.name.strip().upper(): mt.id for mt in existing_mts}
+        material_type_lookup = {mt.type_name.strip().upper(): mt.type_id for mt in existing_mts}
         
         # Load existing RMs
         stmt_rm = select(RmMaster)
         res_rm = await session.execute(stmt_rm)
         existing_rms = res_rm.scalars().all()
-        rm_lookup = {rm.part_no.strip(): rm for rm in existing_rms if rm.part_no}
+        rm_lookup = {rm.part_number.strip(): rm for rm in existing_rms if rm.part_number}
         
         # Counters
         mt_created = 0
@@ -178,7 +178,7 @@ async def ingest_pipeline(file_path, dry_run=False):
                 async with session.begin_nested():
                     if grup_head in material_type_lookup:
                         mt_id = material_type_lookup[grup_head]
-                        stmt_mt_up = update(MaterialTypeMaster).where(MaterialTypeMaster.id == mt_id).values(
+                        stmt_mt_up = update(MaterialTypeMaster).where(MaterialTypeMaster.type_id == mt_id).values(
                             description=grup_head,
                             is_active=True
                         )
@@ -187,8 +187,9 @@ async def ingest_pipeline(file_path, dry_run=False):
                     else:
                         mt_id = uuid.uuid4()
                         new_mt = MaterialTypeMaster(
-                            id=mt_id,
-                            name=grup_head,
+                            type_id=mt_id,
+                            type_code=grup_head[:40].upper().replace(' ', '_'),
+                            type_name=grup_head,
                             description=grup_head,
                             is_active=True,
                             created_at=datetime.now(timezone.utc)
@@ -269,7 +270,7 @@ async def ingest_pipeline(file_path, dry_run=False):
                     if part_no in rm_lookup:
                         # Update existing record
                         rm_rec = rm_lookup[part_no]
-                        rm_rec.name = desc
+                        rm_rec.part_name = desc
                         rm_rec.description = desc
                         rm_rec.unit_of_measurement = uom
                         rm_rec.material_type_id = mt_id
@@ -280,8 +281,8 @@ async def ingest_pipeline(file_path, dry_run=False):
                         rm_id = uuid.uuid4()
                         new_rm = RmMaster(
                             rm_id=rm_id,
-                            name=desc,
-                            part_no=part_no,
+                            part_name=desc,
+                            part_number=part_no,
                             unit_of_measurement=uom,
                             description=desc,
                             material_type_id=mt_id,
