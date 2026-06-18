@@ -3,8 +3,12 @@ import sys
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 
+from dotenv import load_dotenv
+import os
+
 async def test_conn():
-    db_url = "postgresql+asyncpg://erp_user:erp_2026@localhost:5432/erp_db"
+    load_dotenv(override=True)
+    db_url = os.environ.get('DATABASE_URL')
     print(f"Attempting to connect to: {db_url}...")
     engine = create_async_engine(db_url)
     try:

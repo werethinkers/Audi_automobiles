@@ -65,32 +65,35 @@ async def get_stock_balance(
     service = InventoryService(db)
     balance = await service.get_balance(rm_id, store_id)
     return float(balance)
- 
+
 @router.post('/consume', response_model=float)
 async def consume_stock(
     req: ConsumptionRequest,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_current_user)
+    user=Depends(get_current_user)
 ):
     service = InventoryService(db)
     try:
         new_balance = await service.consume(
             rm_id=req.rm_id,
             store_id=req.store_id,
-            qty=Decimal(str(req.qty)),
-            consumed_date=req.consumed_date,
+            qty_used=Decimal(str(req.qty_used)),
+            usage_date=req.usage_date,
+            user_id=user.user_id,
+            weight_used_kg=Decimal(str(req.weight_used_kg)) if req.weight_used_kg else None,
+            planned_date=req.planned_date,
             description=req.description,
             remarks=req.remarks
         )
         return float(new_balance)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
- 
+
 @router.post('/transfer', response_model=bool)
 async def transfer_stock(
     req: TransferRequest,
     db: AsyncSession = Depends(get_db),
-    _=Depends(get_current_user)
+    user=Depends(get_current_user)
 ):
     service = InventoryService(db)
     try:
@@ -98,13 +101,14 @@ async def transfer_stock(
             rm_id=req.rm_id,
             from_store_id=req.from_store_id,
             to_store_id=req.to_store_id,
-            qty=Decimal(str(req.qty)),
+            change_qty=Decimal(str(req.change_quantity_pcs)),
+            user_id=user.user_id,
             remarks=req.remarks
         )
         return True
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
- 
+
 @router.get('/ledger', response_model=List[InventoryLedgerResponse])
 async def list_ledger(
     rm_id: Optional[UUID] = None,
@@ -117,6 +121,6 @@ async def list_ledger(
         stmt = stmt.where(RmInventoryLog.rm_id == rm_id)
     if store_id:
         stmt = stmt.where(RmInventoryLog.store_id == store_id)
-    stmt = stmt.order_by(RmInventoryLog.created_at.desc())
+    stmt = stmt.order_by(RmInventoryLog.transaction_date.desc())
     result = await db.execute(stmt)
     return list(result.scalars().all())
