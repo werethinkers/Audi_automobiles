@@ -10,7 +10,7 @@ from .schemas import (
     StockBalanceResponse, ConsumptionRequest, TransferRequest, InventoryLedgerResponse
 )
 from uuid import UUID
-from typing import List, Optional
+from typing import List, Optional, cast
 from decimal import Decimal
 
 router = APIRouter()
@@ -42,16 +42,16 @@ async def list_stock_balances(
             inventory_id=inv.inventory_id,
             rm_id=inv.rm_id,
             store_id=inv.store_id,
-            current_qty=float(inv.current_qty),
-            reserved_qty=float(inv.reserved_qty) if inv.reserved_qty is not None else 0.0,
-            in_transit_qty=float(inv.in_transit_qty) if inv.in_transit_qty is not None else 0.0,
+            current_qty=float(cast(Decimal, inv.current_qty)),
+            reserved_qty=float(cast(Decimal, inv.reserved_qty)) if inv.reserved_qty is not None else 0.0,
+            in_transit_qty=float(cast(Decimal, inv.in_transit_qty)) if inv.in_transit_qty is not None else 0.0,
             last_updated=inv.last_updated,
             # Enriched fields
             rm_name=rm.name,
             rm_part_no=rm.part_no,
             store_name=store.store_name,
             uom=rm.unit_of_measurement,
-            min_stock=float(rm.minimum_stock) if rm.minimum_stock is not None else None,
+            min_stock=float(cast(Decimal, rm.minimum_stock)) if rm.minimum_stock is not None else None,
         ))
     return out
  

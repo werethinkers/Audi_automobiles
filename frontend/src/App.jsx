@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import Layout from './components/layout/Layout'
 import Login from './pages/login/Login'
 import Dashboard from './pages/dashboard/Dashboard'
+import Diagnostics from './pages/Diagnostics'
 import RmList from './pages/rm/RmList'
 import RmForm from './pages/rm/RmForm'
 import VendorList from './pages/vendor/VendorList'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="diagnostics" element={<Diagnostics />} />
             
             {/* Masters */}
             <Route path="rm-master" element={<RmList />} />

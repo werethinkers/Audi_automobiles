@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.models.rm_models import RmInventory, RmInventoryLog, RmConsumptionLog
 from decimal import Decimal
 from datetime import datetime, date
+from typing import cast
 import uuid
  
 class InventoryService:
@@ -18,13 +19,13 @@ class InventoryService:
             ).with_for_update()  # <-- ROW LOCK — never remove this
         )
         inv = result.scalar_one_or_none()
-        return inv.current_qty if inv else Decimal('0.0')
+        return cast(Decimal, inv.current_qty) if inv else Decimal('0.0')
  
     async def post_transaction(
-        self, rm_id, store_id, qty: Decimal,
+        self, rm_id: uuid.UUID, store_id: uuid.UUID, qty: Decimal,
         transaction_type: str, reference_type=None,
         reference_id=None, remarks=None
-    ):
+    ) -> Decimal:
         # 1. Get current balance WITH row lock
         result = await self.db.execute(
             select(RmInventory)
@@ -33,7 +34,7 @@ class InventoryService:
         )
         inv = result.scalar_one_or_none()
  
-        balance_before = inv.current_qty if inv else Decimal('0.0')
+        balance_before = cast(Decimal, inv.current_qty) if inv else Decimal('0.0')
         balance_after  = balance_before + qty
  
         # 2. Guard: block negative balance

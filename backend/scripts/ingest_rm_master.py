@@ -56,7 +56,7 @@ def detect_sheet_and_header(file_path):
     sheet_priority = []
     other_sheets = []
     for sheet_name in xl.sheet_names:
-        low_name = sheet_name.lower()
+        low_name = str(sheet_name).lower()
         if "master" in low_name or "plan" in low_name or "incoming" in low_name or "order" in low_name:
             sheet_priority.append(sheet_name)
         else:
@@ -143,7 +143,11 @@ async def ingest_pipeline(file_path, dry_run=False):
         stmt_rm = select(RmMaster)
         res_rm = await session.execute(stmt_rm)
         existing_rms = res_rm.scalars().all()
-        rm_lookup = {rm.part_no.strip(): rm for rm in existing_rms if rm.part_no}
+        rm_lookup = {
+            rm.part_no.strip(): rm
+            for rm in existing_rms
+            if isinstance(rm.part_no, str) and rm.part_no.strip()
+        }
         
         # Counters
         mt_created = 0

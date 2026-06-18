@@ -28,7 +28,7 @@ async def ingest_inventory(file_path: str):
     df = pd.read_excel(file_path, sheet_name="ORDER", header=2)
     df.columns = [str(c).strip() for c in df.columns]
 
-    print(f"Columns: {df.columns.tolist()[:12]}")
+    print(f"Columns: {df.columns[:12]}")
     print(f"Total rows: {len(df)}")
 
     # ── 1. Clean & filter rows ────────────────────────────────────────────────
@@ -66,7 +66,13 @@ async def ingest_inventory(file_path: str):
         # ── 3. Load all RM records (keyed by part_no) ─────────────────────────
         result = await session.execute(select(RmMaster))
         all_rms = result.scalars().all()
-        rm_lookup = {rm.part_no.strip(): rm for rm in all_rms if rm.part_no}
+        rm_lookup = {}
+        for rm in all_rms:
+            part_no = rm.part_no
+            if isinstance(part_no, str):
+                normalized = part_no.strip()
+                if normalized:
+                    rm_lookup[normalized] = rm
         print(f"RM records in DB: {len(rm_lookup)}")
 
         # ── 4. Load existing inventory rows ───────────────────────────────────

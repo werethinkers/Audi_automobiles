@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from sqlalchemy import Column, String, Boolean, DateTime, Date, Integer
 from sqlalchemy import Numeric, Text, ForeignKey, UniqueConstraint, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
  
 def gen_uuid():
@@ -15,19 +16,19 @@ def now_utc():
 # ── LOOKUP MASTERS ────────────────────────────────────
 class ProcurementSourceMaster(Base):
     __tablename__ = 'procurement_source_master'
-    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name        = Column(String(100), nullable=False)
-    description = Column(Text)
-    is_active   = Column(Boolean, nullable=False, default=True)
-    created_at  = Column(DateTime(timezone=True), default=now_utc)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
  
 class MaterialTypeMaster(Base):
     __tablename__ = 'material_type_master'
-    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name        = Column(String(100), nullable=False)
-    description = Column(Text)
-    is_active   = Column(Boolean, nullable=False, default=True)
-    created_at  = Column(DateTime(timezone=True), default=now_utc)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
  
 class PoStatusMaster(Base):
     __tablename__ = 'po_status_master'
@@ -42,19 +43,19 @@ class PoStatusMaster(Base):
 # ── CORE MASTERS ──────────────────────────────────────
 class RmMaster(Base):
     __tablename__ = 'rm_master'
-    rm_id                 = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name                  = Column(String(255), nullable=False)
-    part_no               = Column(String(100), unique=True)
-    unit_of_measurement   = Column(String(50), nullable=False)
-    description           = Column(Text)
-    material_type_id      = Column(UUID(as_uuid=True), ForeignKey('material_type_master.id'))
-    procurement_source_id = Column(UUID(as_uuid=True), ForeignKey('procurement_source_master.id'))
+    rm_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    part_no: Mapped[str | None] = mapped_column(String(100), unique=True)
+    unit_of_measurement: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    material_type_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey('material_type_master.id'))
+    procurement_source_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey('procurement_source_master.id'))
     # reorder_level         = Column(Numeric(14,3))
-    minimum_stock         = Column(Numeric(14,3))
-    lead_time_days        = Column(Integer)
-    is_active             = Column(Boolean, nullable=False, default=True)
-    created_at            = Column(DateTime(timezone=True), default=now_utc)
-    updated_at            = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
+    minimum_stock: Mapped[Decimal | None] = mapped_column(Numeric(14,3))
+    lead_time_days: Mapped[int | None] = mapped_column(Integer)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
  
 class VendorMaster(Base):
     __tablename__ = 'vendor_master'
@@ -175,14 +176,14 @@ class GrnDetail(Base):
 class RmInventory(Base):
     __tablename__ = 'rm_inventory'
     __table_args__ = (UniqueConstraint('rm_id','store_id'),)
-    inventory_id      = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    rm_id             = Column(UUID(as_uuid=True), ForeignKey('rm_master.rm_id'), nullable=False)
-    store_id          = Column(UUID(as_uuid=True), ForeignKey('store_master.store_id'), nullable=False)
-    current_qty       = Column(Numeric(14,3), nullable=False, default=0)
-    reserved_qty      = Column(Numeric(14,3), default=0)
-    in_transit_qty    = Column(Numeric(14,3), default=0)
-    last_updated      = Column(DateTime(timezone=True), default=now_utc)
- 
+    inventory_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    rm_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('rm_master.rm_id'), nullable=False)
+    store_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('store_master.store_id'), nullable=False)
+    current_qty: Mapped[Decimal] = mapped_column(Numeric(14,3), nullable=False, default=0)
+    reserved_qty: Mapped[Decimal | None] = mapped_column(Numeric(14,3), default=0)
+    in_transit_qty: Mapped[Decimal | None] = mapped_column(Numeric(14,3), default=0)
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
 class RmInventoryLog(Base):
     __tablename__ = 'rm_inventory_log'
     log_id           = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
