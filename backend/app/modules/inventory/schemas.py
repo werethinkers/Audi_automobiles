@@ -3,14 +3,23 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from uuid import UUID
 from datetime import date, datetime
- 
+
 class StockBalanceResponse(BaseModel):
     inventory_id: UUID
     rm_id: UUID
     store_id: UUID
     current_qty: float
-    last_updated: datetime
- 
+    reserved_qty: Optional[float] = None
+    in_transit_qty: Optional[float] = None
+    last_updated: Optional[datetime] = None
+
+    # Enriched fields from joins
+    rm_name: Optional[str] = None
+    rm_part_no: Optional[str] = None
+    store_name: Optional[str] = None
+    uom: Optional[str] = None
+    min_stock: Optional[float] = None
+
     class Config:
         from_attributes = True
  
