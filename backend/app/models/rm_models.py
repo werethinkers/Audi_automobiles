@@ -83,7 +83,32 @@ class StoreMaster(Base):
     location   = Column(String(200))
     is_active  = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), default=now_utc)
- 
+
+class StationMaster(Base):
+    __tablename__ = "station_master"
+    station_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    station_code = Column(String(50), unique=True, nullable=False)
+    station_name = Column(String(255), nullable=False)
+    station_description = Column(Text)
+    
+    operation_id = Column(UUID(as_uuid=True))
+    primary_operator_id = Column(UUID(as_uuid=True))
+
+    sequence_no = Column(Integer)
+
+    requires_qa = Column(Boolean, nullable=False, default=True)
+    is_rework_station = Column(Boolean, nullable=False, default=False)
+    backflush_enabled = Column(Boolean, nullable=False, default=False)
+
+    standard_cycle_time_min = Column(Integer)
+
+    is_active = Column(Boolean, nullable=False, default=True)
+
+    custom_fields = Column(JSONB, default={})
+
+    created_at = Column(DateTime(timezone=True), default=now_utc)
+
+
 # ── MAPPING TABLES ────────────────────────────────────
 class RmVendorMapping(Base):
     __tablename__ = 'rm_vendor_mapping'

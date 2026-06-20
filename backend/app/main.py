@@ -11,7 +11,8 @@ from app.modules.store.routes         import router as store_router
 from app.modules.procurement.routes   import router as procurement_router
 from app.modules.inventory.routes     import router as inventory_router
 from app.modules.custom_fields.routes import router as cf_router
- 
+from app.modules.station.routes import router as station_router
+
 app = FastAPI(
     title=settings.APP_NAME,
     version='1.0.0',
@@ -32,10 +33,12 @@ app.include_router(auth_router,        prefix='/api/v1/auth',            tags=['
 app.include_router(rm_router,          prefix='/api/v1/rm-master',      tags=['RM Master'])
 app.include_router(vendor_router,      prefix='/api/v1/vendors',         tags=['Vendors'])
 app.include_router(store_router,       prefix='/api/v1/stores',          tags=['Stores'])
+app.include_router(station_router,     prefix='/api/v1/stations',        tags=['Stations'])
 app.include_router(procurement_router, prefix='/api/v1/procurement',     tags=['Procurement'])
 app.include_router(inventory_router,   prefix='/api/v1/inventory',       tags=['Inventory'])
 app.include_router(cf_router,          prefix='/api/v1/custom-fields',   tags=['Custom Fields'])
- 
+
+
 @app.get('/health')
 async def health():
     return {'status': 'ok', 'version': '1.0.0'}
