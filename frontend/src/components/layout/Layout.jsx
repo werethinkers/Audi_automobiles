@@ -16,6 +16,7 @@ import {
   BellIcon,
   ChevronDownIcon,
   TruckIcon,
+  BuildingOffice2Icon,
 } from '@heroicons/react/24/outline'
 
 // ── Nav configuration ──────────────────────────────────────────────────────────
@@ -50,6 +51,11 @@ const NAV = [
       { label: 'Stock Ledger',   path: '/ledger',        icon: ArrowPathIcon },
       { label: 'Issue Material', path: '/consumption',   icon: InboxArrowDownIcon },
     ],
+  },
+  {
+    label: 'Stations',
+    path: '/stations',
+    icon: BuildingOffice2Icon,
   },
   {
     label: 'Config',
