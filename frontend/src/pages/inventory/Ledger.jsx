@@ -15,15 +15,15 @@ import {
 
 function TxIcon({ type }) {
   const t = (type || '').toLowerCase()
-  if (t.includes('grn') || t.includes('receipt') || t.includes('in'))
-    return <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded"><ArrowUpCircleIcon className="w-3.5 h-3.5" /> GRN</span>
-  if (t.includes('consumption') || t.includes('issue') || t.includes('out'))
-    return <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded"><ArrowDownCircleIcon className="w-3.5 h-3.5" /> Issue</span>
+  if (t.includes('grn') || t.includes('receipt') || t.includes('transfer_in') || t.includes('adjustment_add'))
+    return <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded"><ArrowUpCircleIcon className="w-3.5 h-3.5" /> IN</span>
+  if (t.includes('consumption') || t.includes('issue') || t.includes('transfer_out') || t.includes('adjustment_deduct') || t.includes('rejection') || t.includes('out'))
+    return <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded"><ArrowDownCircleIcon className="w-3.5 h-3.5" /> OUT</span>
   return <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded"><ArrowsRightLeftIcon className="w-3.5 h-3.5" /> {type || 'Transfer'}</span>
 }
 
 const COLUMNS = [
-  { key: 'date', header: 'Date',
+  { key: 'created_at', header: 'Date',
     render: v => v ? (
       <div>
         <div className="text-xs font-bold text-[#2c3e50]">{new Date(v).toLocaleDateString('en-GB')}</div>
@@ -42,7 +42,7 @@ const COLUMNS = [
   { key: 'qty', header: 'Quantity',
     render: (v, row) => {
       const t = (row.transaction_type || '').toLowerCase()
-      const isIn = t.includes('grn') || t.includes('receipt') || t.includes('in')
+      const isIn = t.includes('grn') || t.includes('receipt') || t.includes('transfer_in') || t.includes('adjustment_add')
       return (
         <span className={`font-black text-base ${isIn ? 'text-green-600' : 'text-red-600'}`}>
           {isIn ? '+' : '-'}{Math.abs(parseFloat(v) || 0).toLocaleString()}

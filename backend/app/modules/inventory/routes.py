@@ -112,11 +112,37 @@ async def list_ledger(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    stmt = select(RmInventoryLog)
+    stmt = (
+        select(RmInventoryLog, RmMaster, StoreMaster)
+        .join(RmMaster, RmInventoryLog.rm_id == RmMaster.rm_id)
+        .join(StoreMaster, RmInventoryLog.store_id == StoreMaster.store_id)
+    )
     if rm_id:
         stmt = stmt.where(RmInventoryLog.rm_id == rm_id)
     if store_id:
         stmt = stmt.where(RmInventoryLog.store_id == store_id)
     stmt = stmt.order_by(RmInventoryLog.created_at.desc())
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    
+    out = []
+    for log, rm, store in result.all():
+        out.append(InventoryLedgerResponse(
+            log_id=log.log_id,
+            rm_id=log.rm_id,
+            store_id=log.store_id,
+            transaction_type=log.transaction_type,
+            qty=float(cast(Decimal, log.qty)),
+            balance_before=float(cast(Decimal, log.balance_before)),
+            balance_after=float(cast(Decimal, log.balance_after)),
+            reference_type=log.reference_type,
+            reference_id=log.reference_id,
+            remarks=log.remarks,
+            created_at=log.created_at,
+            # Enriched fields
+            rm_name=rm.name,
+            rm_part_no=rm.part_no,
+            store_name=store.store_name,
+            uom=rm.unit_of_measurement,
+            description=log.reference_type,
+        ))
+    return out
