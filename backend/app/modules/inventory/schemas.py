@@ -50,6 +50,13 @@ class InventoryLedgerResponse(BaseModel):
     reference_id: Optional[UUID]
     remarks: Optional[str]
     created_at: datetime
+
+    # Enriched fields from joins
+    rm_name: Optional[str] = None
+    rm_part_no: Optional[str] = None
+    store_name: Optional[str] = None
+    uom: Optional[str] = None
+    description: Optional[str] = None
  
     class Config:
         from_attributes = True
