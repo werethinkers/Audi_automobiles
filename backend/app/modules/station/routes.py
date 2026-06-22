@@ -37,13 +37,29 @@ async def create_station(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    station = StationMaster(**data.model_dump(exclude_none=True))
+    # Check if station code already exists
+    stmt = select(StationMaster).where(
+        StationMaster.station_code == data.station_code
+    )
+
+    result = await db.execute(stmt)
+    existing_station = result.scalar_one_or_none()
+
+    if existing_station:
+        raise HTTPException(
+            status_code=400,
+            detail="Station code already exists"
+        )
+
+    station = StationMaster(
+        **data.model_dump(exclude_none=True)
+    )
 
     db.add(station)
 
-    await db.flush()
+    await db.commit()
     await db.refresh(station)
-    
+
     return station
 
 
@@ -71,18 +87,46 @@ async def update_station(
     station = await db.get(StationMaster, station_id)
 
     if not station:
-        raise HTTPException(404, 'Station not found')
+        raise HTTPException(404, "Station not found")
 
     update_data = data.model_dump(exclude_none=True)
+
+    # Check duplicate station code
+    if "station_code" in update_data:
+        stmt = select(StationMaster).where(
+            StationMaster.station_code == update_data["station_code"],
+            StationMaster.station_id != station_id
+        )
+
+        result = await db.execute(stmt)
+
+        if result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=400,
+                detail="Station code already exists"
+            )
 
     for key, value in update_data.items():
         setattr(station, key, value)
 
-    await db.flush()
+    await db.commit()
     await db.refresh(station)
 
     return station
 
+@router.delete('/{station_id}/permanent', status_code=204)
+async def permanent_delete_station(
+    station_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_current_user)
+):
+    station = await db.get(StationMaster, station_id)
+
+    if not station:
+        raise HTTPException(404, 'Station not found')
+
+    await db.delete(station)
+    await db.commit()
 
 @router.delete('/{station_id}', status_code=204)
 async def delete_station(
@@ -97,4 +141,4 @@ async def delete_station(
 
     station.is_active = False
 
-    await db.flush()
+    await db.commit()
