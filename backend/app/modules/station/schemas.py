@@ -14,7 +14,7 @@ class StationCreate(BaseModel):
     backflush_enabled: Optional[bool] = False
     standard_cycle_time_min: Optional[int] = None
     is_active: Optional[bool] = True
-    custom_fields: Optional[dict] = {}
+    custom_fields: dict = Field(default_factory=dict)
 
 
 class StationUpdate(BaseModel):
@@ -27,7 +27,7 @@ class StationUpdate(BaseModel):
     backflush_enabled: Optional[bool] = None
     standard_cycle_time_min: Optional[int] = None
     is_active: Optional[bool] = None
-    custom_fields: Optional[dict] = None
+    custom_fields: dict = Field(default_factory=dict)
 
 
 class StationResponse(BaseModel):
@@ -41,7 +41,7 @@ class StationResponse(BaseModel):
     backflush_enabled: bool
     standard_cycle_time_min: Optional[int]
     is_active: bool
-    custom_fields: dict
+    custom_fields: dict = Field(default_factory=dict)
     created_at: datetime
 
     class Config:

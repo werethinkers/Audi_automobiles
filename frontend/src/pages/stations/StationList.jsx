@@ -24,7 +24,7 @@ const COLUMNS = [
     ),
   },
   {
-    key: 'description',
+    key: 'station_description',
     header: 'Description',
     render: v => v || '—',
   },
@@ -55,7 +55,7 @@ export default function StationList() {
     s =>
       s.station_name?.toLowerCase().includes(search.toLowerCase()) ||
       s.station_code?.toLowerCase().includes(search.toLowerCase()) ||
-      s.description?.toLowerCase().includes(search.toLowerCase())
+      s.station_description?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (

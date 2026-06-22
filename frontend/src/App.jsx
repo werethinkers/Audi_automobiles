@@ -20,7 +20,8 @@ import Ledger from './pages/inventory/Ledger'
 import Consumption from './pages/inventory/Consumption'
 import CustomFields from './pages/config/CustomFields'
 import StationList from './pages/stations/StationList'
- 
+import StationForm from './pages/stations/StationForm'
+
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1 } } })
  
 export default function App() {
@@ -64,6 +65,8 @@ export default function App() {
             
             {/* Stations */}
             <Route path="stations" element={<StationList />} />
+            <Route path="/stations/new" element={<StationForm />} />
+            <Route path="/stations/:id" element={<StationForm />} />
 
             {/* Configuration */}
             <Route path="custom-fields" element={<CustomFields />} />

@@ -11,7 +11,7 @@ from app.modules.store.routes         import router as store_router
 from app.modules.procurement.routes   import router as procurement_router
 from app.modules.inventory.routes     import router as inventory_router
 from app.modules.custom_fields.routes import router as cf_router
-from app.modules.station.routes import router as station_router
+from app.modules.station.routes       import router as station_router
 
 app = FastAPI(
     title=settings.APP_NAME,

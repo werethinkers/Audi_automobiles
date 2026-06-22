@@ -50,3 +50,15 @@ export const useDeleteStation = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
   })
 }
+
+export const useHardDeleteStation = () => {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id) =>
+      api.delete(`/stations/${id}/permanent`).then(r => r.data),
+
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: KEYS.all }),
+  })
+}
