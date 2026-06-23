@@ -259,8 +259,14 @@ async def create_grn(
                 po_detail.line_status = 'PARTIALLY_RECEIVED'
  
     await db.flush()
-    # Note: refresh() here is fine as GRN details were just constructed manually
-    # and assigned below without triggering lazy-load queries.
-    await db.refresh(grn)
-    grn.details = grn_details
+
+    # Load the GRN including its detail lines using selectinload.
+    # This avoids a lazy-load on the async session when FastAPI serializes the response.
+    stmt = (
+        select(RmReceivingLog)
+        .options(selectinload(RmReceivingLog.details))
+        .where(RmReceivingLog.grn_id == grn.grn_id)
+    )
+    result = await db.execute(stmt)
+    grn = result.scalar_one()
     return grn
