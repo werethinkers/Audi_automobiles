@@ -22,6 +22,11 @@ async def list_stock_balances(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Fetch a list of stock balances across all or specific stores.
+    Purpose: Drives the Inventory Report page. Returns current stock levels
+    for Raw Materials, enriched with master data (Name, Part No, UOM).
+    """
     # Joined query: inventory + rm_master + store_master
     stmt = (
         select(RmInventory, RmMaster, StoreMaster)
@@ -62,6 +67,11 @@ async def get_stock_balance(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Get the exact current balance for a specific Raw Material in a specific Store.
+    Purpose: Used by frontend validation logic before performing consumptions
+    or transfers to ensure sufficient stock exists.
+    """
     service = InventoryService(db)
     balance = await service.get_balance(rm_id, store_id)
     return float(balance)
@@ -72,6 +82,11 @@ async def consume_stock(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Consume (reduce) stock from a specific store.
+    Purpose: Logs material usage in production. This updates the live stock
+    balance and generates a transaction log in the Stock Ledger.
+    """
     service = InventoryService(db)
     try:
         new_balance = await service.consume(
@@ -92,6 +107,11 @@ async def transfer_stock(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Transfer stock from one store to another.
+    Purpose: Moves physical inventory between locations (e.g., Main Store to Floor Store).
+    Generates two ledger entries: a deduction from source, and an addition to destination.
+    """
     service = InventoryService(db)
     try:
         await service.transfer(
@@ -112,6 +132,11 @@ async def list_ledger(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Fetch the stock transaction ledger (history).
+    Purpose: Drives the Consumption Report / Stock Ledger page. Provides a full
+    audit trail of all GRNs, Consumptions, and Transfers that affected stock levels.
+    """
     stmt = (
         select(RmInventoryLog, RmMaster, StoreMaster)
         .join(RmMaster, RmInventoryLog.rm_id == RmMaster.rm_id)
