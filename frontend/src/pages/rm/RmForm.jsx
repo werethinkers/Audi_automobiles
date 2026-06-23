@@ -160,14 +160,12 @@ export default function RmForm() {
       <PageHeader
         title={isEdit ? `Edit: ${rm?.name || 'Raw Material'}` : 'Add New Raw Material'}
         subtitle={isEdit ? `RM ID: ${id}` : 'Fill in the details to register a new material'}
-        breadcrumb={['Masters', 'Raw Materials', isEdit ? 'Edit' : 'New']}
-        actions={[
-          {
-            label: 'Back to List',
-            onClick: () => navigate('/rm-master'),
-            icon: ArrowLeftIcon
-          }
+        breadcrumb={[
+          { label: 'Masters', href: '/dashboard' },
+          { label: 'Raw Materials', href: '/rm-master' },
+          { label: isEdit ? 'Edit' : 'New' },
         ]}
+        backHref="/rm-master"
       />
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -130,7 +130,12 @@ export default function GrnForm() {
     <div className="p-6 space-y-6 font-sans">
       <PageHeader
         title="Log Goods Received Note"
-        breadcrumb={['Procurement', 'GRN Log', 'New']}
+        breadcrumb={[
+          { label: 'Procurement', href: '/dashboard' },
+          { label: 'GRN Log', href: '/grn' },
+          { label: 'New' },
+        ]}
+        backHref="/grn"
       />
  
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">

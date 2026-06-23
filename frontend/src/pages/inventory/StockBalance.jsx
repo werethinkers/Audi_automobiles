@@ -105,7 +105,7 @@ export default function StockBalance() {
       <PageHeader
         title="Stock Balance"
         subtitle="Real-time inventory levels across all stores"
-        breadcrumb={['Inventory', 'Stock Balance']}
+        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Stock Balance' }]}
         actions={[{ label: '↓ Export', onClick: () => {}, icon: ArrowDownTrayIcon }]}
       />
 

@@ -53,9 +53,11 @@ export default function App() {
             {/* Procurement */}
             <Route path="purchase-orders" element={<PoList />} />
             <Route path="purchase-orders/new" element={<PoForm />} />
+            <Route path="purchase-orders/:id" element={<PoForm />} />
             
             <Route path="grn" element={<GrnList />} />
             <Route path="grn/new" element={<GrnForm />} />
+            <Route path="grn/:id" element={<GrnForm />} />
             
             {/* Inventory */}
             <Route path="stock-balance" element={<StockBalance />} />

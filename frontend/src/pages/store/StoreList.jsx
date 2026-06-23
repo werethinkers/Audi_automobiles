@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useStoreList } from '../../api/store'
+import { useStoreList, useDeleteStore } from '../../api/store'
+import { toast } from 'react-hot-toast'
 import DataTable from '../../components/ui/DataTable'
 import PageHeader from '../../components/ui/PageHeader'
-import { HomeModernIcon } from '@heroicons/react/24/outline'
+import ConfirmModal from '../../components/ui/ConfirmModal'
+import { HomeModernIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 const COLUMNS = [
   { key: 'store_name', header: 'Store Name',
@@ -25,32 +27,69 @@ const COLUMNS = [
 export default function StoreList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState(null)
   const { data, isLoading } = useStoreList({ is_active: null })
+  const deleteMutation = useDeleteStore()
 
   const filtered = data?.filter(s =>
     s.store_name.toLowerCase().includes(search.toLowerCase()) ||
     s.location?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const handleDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync(deleteTarget.store_id)
+      toast.success(`Store "${deleteTarget.store_name}" deactivated`)
+      setDeleteTarget(null)
+    } catch {
+      toast.error('Failed to delete store')
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
         title="Store Master"
         subtitle="Manage all warehouse locations and store definitions"
-        breadcrumb={['Masters', 'Stores']}
+        breadcrumb={[{ label: 'Masters', href: '/dashboard' }, { label: 'Stores' }]}
         actions={[{ label: '+ Add Store', onClick: () => navigate('/stores/new'), primary: true }]}
       />
-      <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex gap-3">
-          <input
-            className="flex-1 max-w-sm border border-slate-200 rounded px-3 py-2 text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 bg-white"
-            placeholder="Search name, location..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              placeholder="Search name, location..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <span className="text-xs text-slate-400 font-medium ml-auto hidden sm:block">
+            {filtered?.length ?? 0} result{filtered?.length !== 1 ? 's' : ''}
+          </span>
         </div>
-        <DataTable columns={COLUMNS} data={filtered} loading={isLoading} onRowClick={row => navigate(`/stores/${row.store_id}`)} />
+
+        <DataTable
+          columns={COLUMNS}
+          data={filtered}
+          loading={isLoading}
+          onRowClick={row => navigate(`/stores/${row.store_id}`)}
+          onEdit={row => navigate(`/stores/${row.store_id}`)}
+          onDelete={row => setDeleteTarget(row)}
+        />
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Deactivate Store"
+        message={`Are you sure you want to deactivate "${deleteTarget?.store_name}"? It will be marked as inactive but all stock data will be preserved.`}
+        confirmLabel="Deactivate"
+        loading={deleteMutation.isPending}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

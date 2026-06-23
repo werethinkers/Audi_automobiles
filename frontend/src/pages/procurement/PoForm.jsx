@@ -108,7 +108,12 @@ export default function PoForm() {
     <div className="p-6 space-y-6 font-sans">
       <PageHeader
         title="Create Purchase Order"
-        breadcrumb={['Procurement', 'Purchase Orders', 'New']}
+        breadcrumb={[
+          { label: 'Procurement', href: '/dashboard' },
+          { label: 'Purchase Orders', href: '/purchase-orders' },
+          { label: 'New' },
+        ]}
+        backHref="/purchase-orders"
       />
  
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">

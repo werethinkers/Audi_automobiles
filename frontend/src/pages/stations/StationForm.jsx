@@ -100,15 +100,13 @@ export default function StationForm() {
     <div className="space-y-5">
       <PageHeader
         title={isEdit ? `Edit: ${formData.station_name}` : 'Add Station'}
-        subtitle={
-          isEdit
-            ? 'Modify station details'
-            : 'Create a new production station'
-        }
+        subtitle={isEdit ? 'Modify station details' : 'Create a new production station'}
         breadcrumb={[
-          'Stations',
-          isEdit ? 'Edit Station' : 'Add Station',
+          { label: 'Masters', href: '/dashboard' },
+          { label: 'Stations', href: '/stations' },
+          { label: isEdit ? 'Edit Station' : 'Add Station' },
         ]}
+        backHref="/stations"
       />
 
       <div className="bg-white rounded border border-slate-200 p-6">

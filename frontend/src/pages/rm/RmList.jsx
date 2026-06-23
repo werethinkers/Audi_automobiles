@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useRmList } from '../../api/rm'
+import { useRmList, useDeleteRm } from '../../api/rm'
+import { toast } from 'react-hot-toast'
 import DataTable from '../../components/ui/DataTable'
-import Badge from '../../components/ui/Badge'
 import PageHeader from '../../components/ui/PageHeader'
 import StatCard from '../../components/ui/StatCard'
+import ConfirmModal from '../../components/ui/ConfirmModal'
 import {
   CubeIcon,
   CheckCircleIcon,
@@ -41,7 +42,9 @@ export default function RmList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [deleteTarget, setDeleteTarget] = useState(null)
   const { data, isLoading } = useRmList({ is_active: null })
+  const deleteMutation = useDeleteRm()
 
   const filtered = data?.filter(item => {
     const matchSearch = !search ||
@@ -56,12 +59,22 @@ export default function RmList() {
   const inactive = total - active
   const withSafetyStock = data?.filter(r => r.minimum_stock > 0).length || 0
 
+  const handleDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync(deleteTarget.rm_id)
+      toast.success(`"${deleteTarget.name}" deactivated`)
+      setDeleteTarget(null)
+    } catch {
+      toast.error('Failed to delete material')
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
         title="Raw Material Master"
         subtitle="Manage all raw materials, part numbers and safety stock levels"
-        breadcrumb={['Masters', 'Raw Materials']}
+        breadcrumb={[{ label: 'Masters', href: '/dashboard' }, { label: 'Raw Materials' }]}
         actions={[{ label: '+ Add Material', onClick: () => navigate('/rm-master/new'), primary: true }]}
       />
 
@@ -74,19 +87,19 @@ export default function RmList() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Filter bar */}
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center gap-3">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
               placeholder="Search by name or part no..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex rounded overflow-hidden border border-slate-200 bg-white">
+          <div className="flex rounded-lg overflow-hidden border border-slate-200 bg-white">
             {['all', 'active', 'inactive'].map(f => (
               <button
                 key={f}
@@ -95,10 +108,13 @@ export default function RmList() {
                   statusFilter === f ? 'bg-[#3498db] text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                {f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
             ))}
           </div>
+          <span className="text-xs text-slate-400 font-medium ml-auto hidden sm:block">
+            {filtered?.length ?? 0} result{filtered?.length !== 1 ? 's' : ''}
+          </span>
         </div>
 
         <DataTable
@@ -106,8 +122,20 @@ export default function RmList() {
           data={filtered}
           loading={isLoading}
           onRowClick={row => navigate(`/rm-master/${row.rm_id}`)}
+          onEdit={row => navigate(`/rm-master/${row.rm_id}`)}
+          onDelete={row => setDeleteTarget(row)}
         />
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Deactivate Raw Material"
+        message={`Are you sure you want to deactivate "${deleteTarget?.name}"? It will be marked as inactive but all inventory data will be preserved.`}
+        confirmLabel="Deactivate"
+        loading={deleteMutation.isPending}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }
