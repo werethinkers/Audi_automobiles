@@ -18,7 +18,6 @@ import GrnForm from './pages/procurement/GrnForm'
 import StockBalance from './pages/inventory/StockBalance'
 import Ledger from './pages/inventory/Ledger'
 import Consumption from './pages/inventory/Consumption'
-import CustomFields from './pages/config/CustomFields'
 import StationList from './pages/stations/StationList'
 import StationForm from './pages/stations/StationForm'
 
@@ -69,7 +68,6 @@ export default function App() {
             <Route path="/stations/:id" element={<StationForm />} />
 
             {/* Configuration */}
-            <Route path="custom-fields" element={<CustomFields />} />
           </Route>
           
           {/* Catch-all redirect */}

@@ -8,7 +8,6 @@ import {
   useMaterialTypes,
   useProcurementSources
 } from '../../api/rm'
-import { useCustomFieldsList, useCustomFieldValues, useSaveCustomFieldValues } from '../../api/customFields'
 import PageHeader from '../../components/ui/PageHeader'
 import { toast } from 'react-hot-toast'
 import {
@@ -72,8 +71,6 @@ export default function RmForm() {
 
   const { data: matTypes }      = useMaterialTypes()
   const { data: procSources }   = useProcurementSources()
-  const { data: customFields }  = useCustomFieldsList({ entity_type: 'rm_master' })
-  const { data: fieldValues }   = useCustomFieldValues('rm_master', id)
 
   const [name, setName]               = useState('')
   const [partNo, setPartNo]           = useState('')
@@ -84,13 +81,11 @@ export default function RmForm() {
   const [minStock, setMinStock]       = useState('')
   const [leadTime, setLeadTime]       = useState('')
   const [isActive, setIsActive]       = useState(true)
-  const [cfValues, setCfValues]       = useState({})
 
   const { data: rm, isLoading: detailLoading } = useRmDetail(id)
   const createMutation    = useCreateRm()
   const updateMutation    = useUpdateRm()
   const deleteMutation    = useDeleteRm()
-  const saveCfValuesMutation = useSaveCustomFieldValues()
 
   useEffect(() => {
     if (isEdit && rm) {
@@ -105,18 +100,6 @@ export default function RmForm() {
       setIsActive(rm.is_active ?? true)
     }
   }, [isEdit, rm])
-
-  useEffect(() => {
-    if (isEdit && fieldValues) {
-      const vals = {}
-      fieldValues.forEach(val => { vals[val.field_id] = val.field_value || '' })
-      setCfValues(vals)
-    }
-  }, [isEdit, fieldValues])
-
-  const handleCfChange = (fieldId, val) => {
-    setCfValues(prev => ({ ...prev, [fieldId]: val }))
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -140,19 +123,7 @@ export default function RmForm() {
         savedRmId = res.rm_id
         toast.success('Material created successfully!')
       }
-      if (customFields && customFields.length > 0) {
-        const bulkValues = Object.keys(cfValues).map(fid => ({
-          field_id: fid,
-          field_value: String(cfValues[fid])
-        }))
-        if (bulkValues.length > 0) {
-          await saveCfValuesMutation.mutateAsync({
-            entity_type: 'rm_master',
-            entity_id: savedRmId,
-            values: bulkValues
-          })
-        }
-      }
+
       navigate('/rm-master')
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Error saving material')
@@ -347,49 +318,6 @@ export default function RmForm() {
             </div>
           )}
         </div>
-
-        {/* ── Section 4: Custom Fields ─────────────────────────────── */}
-        {customFields && customFields.length > 0 && (
-          <div className="bg-white rounded border border-slate-200 shadow-sm p-6">
-            <SectionHeader
-              icon={SparklesIcon}
-              title="Additional Details"
-              subtitle="Custom fields configured for this entity"
-              color="green"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {customFields.map(field => (
-                <Field key={field.field_id} label={field.field_label} required={field.is_required}>
-                  {field.field_type === 'dropdown' ? (
-                    <select
-                      required={field.is_required}
-                      value={cfValues[field.field_id] || ''}
-                      onChange={e => handleCfChange(field.field_id, e.target.value)}
-                      className={selectCls}
-                    >
-                      <option value="">Select Option</option>
-                      {field.dropdown_options?.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={
-                        field.field_type === 'number' ? 'number'
-                        : field.field_type === 'date' ? 'date'
-                        : 'text'
-                      }
-                      required={field.is_required}
-                      value={cfValues[field.field_id] || ''}
-                      onChange={e => handleCfChange(field.field_id, e.target.value)}
-                      className={inputCls}
-                    />
-                  )}
-                </Field>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* ── Form Actions ─────────────────────────────────────────── */}
         <div className="bg-white rounded border border-slate-200 shadow-sm px-6 py-4 flex items-center justify-between">

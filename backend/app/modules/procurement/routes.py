@@ -19,6 +19,11 @@ router = APIRouter()
  
 @router.get('/po-statuses')
 async def list_po_statuses(db: AsyncSession = Depends(get_db)):
+    """
+    Fetch all available PO statuses (e.g., OPEN, APPROVED, CLOSED).
+    Purpose: Used by the frontend dropdowns to display valid status transitions
+    for Purchase Orders within the procurement module.
+    """
     result = await db.execute(select(PoStatusMaster).order_by(PoStatusMaster.code.asc()))
     return list(result.scalars().all())
  
@@ -29,6 +34,11 @@ async def list_purchase_orders(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Fetch a paginated list of Purchase Orders along with their associated details.
+    Purpose: Serves the primary data grid on the PO Management page. Uses `selectinload`
+    to efficiently fetch child line items (details) avoiding N+1 query problems.
+    """
     stmt = (
         select(RmPurchaseOrder)
         .options(selectinload(RmPurchaseOrder.details))
@@ -44,32 +54,27 @@ async def create_purchase_order(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    # Calculate PO line amounts and total amount
+    """
+    Create a new Purchase Order (Header) along with its line items (Details).
+    Purpose: This is the core entry point for ordering Raw Materials from vendors.
+    It automatically calculates line amounts including GST, aggregates the total
+    PO amount, and persists the hierarchical data (header + children) together.
+    """
+    # Calculate PO line amounts and total amount programmatically
     total_amount = Decimal('0.0')
     po_details = []
     
-    # Create the PO object first
-    po = RmPurchaseOrder(
-        po_number=data.po_number,
-        vendor_id=data.vendor_id,
-        order_date=data.order_date,
-        expected_delivery_date=data.expected_delivery_date,
-        status_id=data.status_id,
-        notes=data.notes,
-        total_amount=Decimal('0.0')
-    )
-    db.add(po)
-    await db.flush() # get po.po_id
-    
+    # Iterate through requested line items to prepare child records
     for detail_in in data.details:
         gst = Decimal(str(detail_in.gst_percent or 0.0))
         qty = Decimal(str(detail_in.order_qty))
         price = Decimal(str(detail_in.unit_price))
+        
+        # Calculate line total: (Qty * Price) + GST
         line_amount = qty * price * (1 + gst / 100)
         total_amount += line_amount
         
         detail = RmPoDetail(
-            po_id=po.po_id,
             rm_id=detail_in.rm_id,
             order_qty=qty,
             received_qty=Decimal('0.0'),
@@ -78,15 +83,31 @@ async def create_purchase_order(
             line_amount=line_amount,
             line_status='OPEN'
         )
-        db.add(detail)
         po_details.append(detail)
         
-    po.total_amount = total_amount
-    await db.flush()
-    await db.refresh(po)
+    # Construct the parent PO record with the aggregated total and child items
+    po = RmPurchaseOrder(
+        po_number=data.po_number,
+        vendor_id=data.vendor_id,
+        order_date=data.order_date,
+        expected_delivery_date=data.expected_delivery_date,
+        status_id=data.status_id,
+        notes=data.notes,
+        total_amount=total_amount,
+        details=po_details
+    )
+    db.add(po)
+    await db.flush() # Send changes to DB to generate primary keys without committing
     
-    # Pre-populate details list for response serialization
-    po.details = po_details
+    # Reload with details using eager loading (`selectinload`) to ensure it is 
+    # fully populated for the Pydantic response model and to prevent MissingGreenlet errors.
+    stmt = (
+        select(RmPurchaseOrder)
+        .options(selectinload(RmPurchaseOrder.details))
+        .where(RmPurchaseOrder.po_id == po.po_id)
+    )
+    result = await db.execute(stmt)
+    po = result.scalar_one()
     return po
  
 @router.get('/purchase-orders/{po_id}', response_model=RmPurchaseOrderResponse)
@@ -95,6 +116,11 @@ async def get_purchase_order(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Fetch a single Purchase Order by its ID.
+    Purpose: Used when opening a specific PO for viewing or editing. Eagerly 
+    loads details so the frontend has complete context of the ordered items.
+    """
     stmt = (
         select(RmPurchaseOrder)
         .options(selectinload(RmPurchaseOrder.details))
@@ -113,7 +139,12 @@ async def update_po_status(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    # Verify status exists
+    """
+    Update the lifecycle status of a PO (e.g., from DRAFT to APPROVED).
+    Purpose: Drives the procurement workflow state machine. Validates against
+    the Status Master table to prevent invalid states.
+    """
+    # Verify status exists in the master table
     status_exists = await db.get(PoStatusMaster, status_data.status_id)
     if not status_exists:
         raise HTTPException(400, 'Invalid status ID')
@@ -130,6 +161,7 @@ async def update_po_status(
         
     po.status_id = status_data.status_id
     await db.flush()
+    # Note: refresh() here is safe because we already eager-loaded relationships
     await db.refresh(po)
     return po
  
@@ -140,6 +172,11 @@ async def list_grn(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Fetch a list of Goods Receipt Notes (GRN).
+    Purpose: Drives the GRN Log grid, showing historical receipts of raw materials
+    along with their detailed line items.
+    """
     stmt = (
         select(RmReceivingLog)
         .options(selectinload(RmReceivingLog.details))
@@ -155,6 +192,15 @@ async def create_grn(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
+    """
+    Create a new Goods Receipt Note (GRN) when a delivery arrives.
+    Purpose: This is a highly critical cross-module boundary function.
+    1. It logs the physical receipt of goods from a vendor.
+    2. It updates the parent Purchase Order line item's 'received_qty' and status.
+    3. It talks to the Inventory module (`InventoryService`) to instantly
+       update stock levels (Stock Ledgers/Balances) for any accepted quantities.
+    """
+    # 1. Create the GRN Header record
     grn = RmReceivingLog(
         grn_number=data.grn_number,
         po_id=data.po_id,
@@ -166,11 +212,12 @@ async def create_grn(
         remarks=data.remarks
     )
     db.add(grn)
-    await db.flush() # get grn.grn_id
+    await db.flush() # Flush to generate grn.grn_id required for child rows
     
     inv_service = InventoryService(db)
     grn_details = []
     
+    # 2. Process each receipt line item
     for detail_in in data.details:
         rec_qty = Decimal(str(detail_in.received_qty))
         acc_qty = Decimal(str(detail_in.accepted_qty)) if detail_in.accepted_qty is not None else rec_qty
@@ -189,9 +236,8 @@ async def create_grn(
         db.add(detail)
         grn_details.append(detail)
         
-        # If accepted qty > 0 and status is COMPLETED or received, update inventory.
-        # Note: If GRN is PENDING_QA, some architectures wait until QA approval.
-        # But we will post to inventory if accepted_qty > 0, following standard logic.
+        # 3. Post to Inventory (if goods are accepted)
+        # We delegate stock movement logic to the dedicated InventoryService.
         if acc_qty > 0:
             await inv_service.grn_post(
                 rm_id=detail_in.rm_id,
@@ -200,16 +246,21 @@ async def create_grn(
                 grn_id=grn.grn_id
             )
             
-        # Also update received_qty on the corresponding PO detail row
+        # 4. Update parent PO fulfillment status
+        # We find the original PO line item and increment its received quantity.
         po_detail = await db.get(RmPoDetail, detail_in.po_detail_id)
         if po_detail:
             po_detail.received_qty = (po_detail.received_qty or Decimal('0.0')) + acc_qty
+            
+            # Mark the line item as fully or partially completed based on fulfillment
             if po_detail.received_qty >= po_detail.order_qty:
                 po_detail.line_status = 'COMPLETED'
             else:
                 po_detail.line_status = 'PARTIALLY_RECEIVED'
  
     await db.flush()
+    # Note: refresh() here is fine as GRN details were just constructed manually
+    # and assigned below without triggering lazy-load queries.
     await db.refresh(grn)
     grn.details = grn_details
     return grn
