@@ -234,29 +234,4 @@ class RmConsumptionLog(Base):
     description      = Column(Text)
     remarks          = Column(Text)
     created_at       = Column(DateTime(timezone=True), default=now_utc)
- 
-# ── CUSTOM FIELDS ─────────────────────────────────────
-class EntityCustomField(Base):
-    __tablename__ = 'entity_custom_fields'
-    field_id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    entity_type       = Column(String(100), nullable=False)
-    field_key         = Column(String(100), nullable=False)
-    field_label       = Column(String(150), nullable=False)
-    field_type        = Column(String(50), nullable=False)
-    dropdown_options  = Column(JSONB)
-    is_required       = Column(Boolean, nullable=False, default=False)
-    is_visible_in_list= Column(Boolean, default=False)
-    sort_order        = Column(Integer, default=0)
-    is_active         = Column(Boolean, nullable=False, default=True)
-    created_at        = Column(DateTime(timezone=True), default=now_utc)
- 
-class EntityCustomFieldValue(Base):
-    __tablename__ = 'entity_custom_field_values'
-    __table_args__ = (Index('ix_ecfv_entity', 'entity_type', 'entity_id'),)
-    value_id    = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    field_id    = Column(UUID(as_uuid=True), ForeignKey('entity_custom_fields.field_id'))
-    entity_type = Column(String(100), nullable=False)
-    entity_id   = Column(UUID(as_uuid=True), nullable=False)
-    field_value = Column(Text)
-    created_at  = Column(DateTime(timezone=True), default=now_utc)
-    updated_at  = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
+

@@ -27,29 +27,23 @@ const NAV = [
     icon: Squares2X2Icon,
   },
   {
-    label: 'Masters',
-    icon: CubeIcon,
-    children: [
-      { label: 'Raw Materials',   path: '/rm-master',  icon: CubeIcon },
-      { label: 'Vendors',         path: '/vendors',    icon: TruckIcon },
-      { label: 'Stores',          path: '/stores',     icon: HomeModernIcon },
-    ],
-  },
-  {
     label: 'Procurement',
     icon: DocumentTextIcon,
     children: [
-      { label: 'Purchase Orders', path: '/purchase-orders', icon: DocumentTextIcon },
-      { label: 'GRN Log',         path: '/grn',             icon: ClipboardDocumentCheckIcon },
+      { label: 'Vendor Management', path: '/vendors',         icon: TruckIcon },
+      { label: 'Purchase Orders',   path: '/purchase-orders', icon: DocumentTextIcon },
+      { label: 'GRN Log',           path: '/grn',             icon: ClipboardDocumentCheckIcon },
     ],
   },
   {
     label: 'Inventory',
     icon: CircleStackIcon,
     children: [
-      { label: 'Stock Balance',  path: '/stock-balance', icon: CircleStackIcon },
-      { label: 'Stock Ledger',   path: '/ledger',        icon: ArrowPathIcon },
-      { label: 'Issue Material', path: '/consumption',   icon: InboxArrowDownIcon },
+      { label: 'Raw Material Master', path: '/rm-master',      icon: CubeIcon },
+      { label: 'Stores',              path: '/stores',         icon: HomeModernIcon },
+      { label: 'Inventory Report',    path: '/stock-balance',  icon: CircleStackIcon },
+      { label: 'Consumption Report',  path: '/ledger',         icon: ArrowPathIcon },
+      { label: 'Confirm Consumption', path: '/consumption',    icon: InboxArrowDownIcon },
     ],
   },
   {
@@ -57,13 +51,7 @@ const NAV = [
     path: '/stations',
     icon: BuildingOffice2Icon,
   },
-  {
-    label: 'Config',
-    icon: WrenchScrewdriverIcon,
-    children: [
-      { label: 'Custom Fields', path: '/custom-fields', icon: WrenchScrewdriverIcon },
-    ],
-  },
+
 ]
 
 // ── Dropdown nav item ──────────────────────────────────────────────────────────

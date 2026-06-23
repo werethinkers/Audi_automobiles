@@ -1,18 +1,3 @@
-CREATE TABLE IF NOT EXISTS entity_custom_fields (
-	field_id UUID NOT NULL, 
-	entity_type VARCHAR(100) NOT NULL, 
-	field_key VARCHAR(100) NOT NULL, 
-	field_label VARCHAR(150) NOT NULL, 
-	field_type VARCHAR(50) NOT NULL, 
-	dropdown_options JSONB, 
-	is_required BOOLEAN NOT NULL, 
-	is_visible_in_list BOOLEAN, 
-	sort_order INTEGER, 
-	is_active BOOLEAN NOT NULL, 
-	created_at TIMESTAMP WITH TIME ZONE, 
-	PRIMARY KEY (field_id)
-);
-
 CREATE TABLE IF NOT EXISTS material_type_master (
 	id UUID NOT NULL, 
 	name VARCHAR(100) NOT NULL, 
@@ -66,18 +51,6 @@ CREATE TABLE IF NOT EXISTS vendor_master (
 	updated_at TIMESTAMP WITH TIME ZONE, 
 	PRIMARY KEY (vendor_id), 
 	UNIQUE (gst_number)
-);
-
-CREATE TABLE IF NOT EXISTS entity_custom_field_values (
-	value_id UUID NOT NULL, 
-	field_id UUID, 
-	entity_type VARCHAR(100) NOT NULL, 
-	entity_id UUID NOT NULL, 
-	field_value TEXT, 
-	created_at TIMESTAMP WITH TIME ZONE, 
-	updated_at TIMESTAMP WITH TIME ZONE, 
-	PRIMARY KEY (value_id), 
-	FOREIGN KEY(field_id) REFERENCES entity_custom_fields (field_id)
 );
 
 CREATE TABLE IF NOT EXISTS rm_master (
