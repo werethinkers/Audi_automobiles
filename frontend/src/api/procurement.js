@@ -42,6 +42,14 @@ export const useUpdatePoStatus = () => {
     },
   })
 }
+
+export const useDeletePo = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/procurement/purchase-orders/${id}`).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.po_all }),
+  })
+}
  
 // ── GRN HOOKS ────────────────────────────────────────
 export const useGrnList = () =>
@@ -59,6 +67,17 @@ export const useCreateGrn = () => {
       qc.invalidateQueries({ queryKey: KEYS.grn_all })
       qc.invalidateQueries({ queryKey: KEYS.po_all })
       qc.invalidateQueries({ queryKey: ['inventory'] }) // invalidate stock balances
+    },
+  })
+}
+
+export const useDeleteGrn = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/procurement/grn/${id}`).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.grn_all })
+      qc.invalidateQueries({ queryKey: KEYS.po_all })
     },
   })
 }

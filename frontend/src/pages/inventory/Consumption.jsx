@@ -79,7 +79,7 @@ export default function Consumption() {
       <PageHeader
         title="Issue Material"
         subtitle="Record manual material consumption from a store"
-        breadcrumb={['Inventory', 'Issue Material']}
+        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Issue Material' }]}
         actions={[{ label: 'Back', onClick: () => navigate('/stock-balance'), icon: ArrowLeftIcon }]}
       />
 

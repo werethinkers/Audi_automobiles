@@ -76,7 +76,7 @@ export default function Ledger() {
       <PageHeader
         title="Stock Ledger"
         subtitle="Full audit trail of all inventory movements"
-        breadcrumb={['Inventory', 'Stock Ledger']}
+        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Stock Ledger' }]}
         actions={[{ label: '↓ Export', onClick: () => {}, icon: ArrowDownTrayIcon }]}
       />
 

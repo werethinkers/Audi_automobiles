@@ -89,7 +89,12 @@ export default function VendorForm() {
     <div className="space-y-5 max-w-4xl">
       <PageHeader
         title={isEdit ? 'Edit Vendor Profile' : 'Add New Vendor'}
-        breadcrumb={['Masters', 'Vendors', isEdit ? 'Edit' : 'New']}
+        breadcrumb={[
+          { label: 'Masters', href: '/dashboard' },
+          { label: 'Vendors', href: '/vendors' },
+          { label: isEdit ? 'Edit' : 'New' },
+        ]}
+        backHref="/vendors"
       />
  
       <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">

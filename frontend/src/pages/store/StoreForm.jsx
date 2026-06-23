@@ -67,8 +67,13 @@ export default function StoreForm() {
   return (
     <div className="space-y-5 max-w-2xl">
       <PageHeader
-        title={isEdit ? 'Edit Store Profile' : 'Add New Store'}
-        breadcrumb={['Masters', 'Stores', isEdit ? 'Edit' : 'New']}
+        title={isEdit ? 'Edit Store' : 'Add New Store'}
+        breadcrumb={[
+          { label: 'Masters', href: '/dashboard' },
+          { label: 'Stores', href: '/stores' },
+          { label: isEdit ? 'Edit' : 'New' },
+        ]}
+        backHref="/stores"
       />
  
       <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">
