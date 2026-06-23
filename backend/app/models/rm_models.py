@@ -194,7 +194,7 @@ class RmReceivingLog(Base):
     vendor_id     = Column(UUID(as_uuid=True), ForeignKey('vendor_master.vendor_id'))
     received_date = Column(Date, nullable=False)
     vehicle_number= Column(String(50))
-  #  dc_number     = Column(String(100))  #Vendor delivery challan number
+    dc_number     = Column(String(100), nullable=True)
     grn_status    = Column(String(30), default='PENDING_QA')
     remarks       = Column(Text)
     created_at    = Column(DateTime(timezone=True), default=now_utc)
