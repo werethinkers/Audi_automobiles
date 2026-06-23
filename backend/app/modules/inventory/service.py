@@ -8,10 +8,21 @@ from typing import cast
 import uuid
  
 class InventoryService:
+    """
+    Core business logic layer for Inventory Management.
+    Purpose: Centralizes all stock movement operations (Consumptions, Transfers, GRNs).
+    Guarantees ACID compliance, prevents negative stock, and ensures an immutable ledger
+    trail is created for every stock change.
+    """
     def __init__(self, db: AsyncSession):
         self.db = db
  
     async def get_balance(self, rm_id: uuid.UUID, store_id: uuid.UUID) -> Decimal:
+        """
+        Fetch the current stock quantity for an item in a specific store.
+        Purpose: Uses a database ROW LOCK (`with_for_update`) to prevent race conditions 
+        when checking balances during concurrent transactions.
+        """
         result = await self.db.execute(
             select(RmInventory).where(
                 RmInventory.rm_id == rm_id,
@@ -26,6 +37,13 @@ class InventoryService:
         transaction_type: str, reference_type=None,
         reference_id=None, remarks=None
     ) -> Decimal:
+        """
+        The low-level stock posting engine. All stock movements must route through here.
+        Purpose: 
+        1. Safely adjusts stock quantities.
+        2. Enforces stock validation rules (e.g., no negative stock).
+        3. Writes an immutable audit trail to the `RmInventoryLog` table (The Ledger).
+        """
         # 1. Get current balance WITH row lock
         result = await self.db.execute(
             select(RmInventory)
@@ -75,6 +93,11 @@ class InventoryService:
         self, rm_id, store_id, qty: Decimal,
         consumed_date: date, description=None, remarks=None
     ):
+        """
+        Record the consumption of raw materials (usage in manufacturing/production).
+        Purpose: Deducts stock (posts a negative transaction) and creates a specific
+        consumption log entry for reporting.
+        """
         # Post stock OUT transaction
         new_balance = await self.post_transaction(
             rm_id, store_id, -qty,  # negative = debit
@@ -95,6 +118,11 @@ class InventoryService:
     async def grn_post(
         self, rm_id, store_id, accepted_qty: Decimal, grn_id
     ):
+        """
+        Post inventory from a Goods Receipt Note (GRN).
+        Purpose: Called by the Procurement module when vendor shipments arrive.
+        Credits (adds) the accepted quantity to the designated store.
+        """
         return await self.post_transaction(
             rm_id, store_id, accepted_qty,  # positive = credit
             transaction_type='GRN_RECEIPT',
@@ -104,6 +132,13 @@ class InventoryService:
     async def transfer(
         self, rm_id, from_store_id, to_store_id, qty: Decimal, remarks=None
     ):
+        """
+        Move inventory between two internal stores.
+        Purpose: Posts a deduction from the source store and an addition to the 
+        destination store in a single transaction. Utilizes a deterministic locking
+        order (sorting store IDs) to completely eliminate database deadlocks during
+        concurrent transfers.
+        """
         # Always lock in consistent order to avoid deadlock
         ids = sorted([str(from_store_id), str(to_store_id)])
         if ids[0] == str(from_store_id):

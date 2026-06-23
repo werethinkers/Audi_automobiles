@@ -42,6 +42,11 @@ class PoStatusMaster(Base):
  
 # ── CORE MASTERS ──────────────────────────────────────
 class RmMaster(Base):
+    """
+    Core Raw Material Master Table.
+    Purpose: Defines all raw materials available in the system, their base properties
+    (like UOM, Part Number), and rules like minimum stock levels.
+    """
     __tablename__ = 'rm_master'
     rm_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -58,6 +63,11 @@ class RmMaster(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
  
 class VendorMaster(Base):
+    """
+    Core Vendor Master Table.
+    Purpose: Stores details of all suppliers/vendors from whom raw materials 
+    are procured, including contact details and GST info.
+    """
     __tablename__ = 'vendor_master'
     vendor_id      = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name           = Column(String(255), nullable=False)
@@ -136,6 +146,11 @@ class RmStoreMapping(Base):
  
 # ── PROCUREMENT ───────────────────────────────────────
 class RmPurchaseOrder(Base):
+    """
+    Purchase Order (PO) Header Table.
+    Purpose: Represents a formal request to a Vendor to supply specific quantities
+    of raw materials by a given date. Acts as the parent for `RmPoDetail` lines.
+    """
     __tablename__ = 'rm_purchase_order'
     po_id                  = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     po_number              = Column(String(50), unique=True)
@@ -167,6 +182,11 @@ class RmPoDetail(Base):
  
 # ── RECEIVING / GRN ───────────────────────────────────
 class RmReceivingLog(Base):
+    """
+    Goods Receipt Note (GRN) Header Table.
+    Purpose: Logs the physical arrival of raw materials from a vendor. 
+    It bridges the Procurement (PO) side with the Inventory (Stock) side.
+    """
     __tablename__ = 'rm_receiving_log'
     grn_id        = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     grn_number    = Column(String(50), unique=True)
@@ -199,6 +219,11 @@ class GrnDetail(Base):
  
 # ── INVENTORY ─────────────────────────────────────────
 class RmInventory(Base):
+    """
+    Live Stock Balance Table.
+    Purpose: Stores the absolute current quantity of each raw material in each store.
+    This is heavily queried and locked during stock movements to prevent race conditions.
+    """
     __tablename__ = 'rm_inventory'
     __table_args__ = (UniqueConstraint('rm_id','store_id'),)
     inventory_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -210,6 +235,11 @@ class RmInventory(Base):
     last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 class RmInventoryLog(Base):
+    """
+    Immutable Stock Transaction Ledger.
+    Purpose: An append-only audit trail recording every single change to stock levels 
+    (GRNs, Consumptions, Transfers). Essential for historical stock reconciliation.
+    """
     __tablename__ = 'rm_inventory_log'
     log_id           = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     rm_id            = Column(UUID(as_uuid=True), ForeignKey('rm_master.rm_id'), nullable=False)

@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
  
-# Import all routers
+# ── ROUTER IMPORTS ────────────────────────────────────
+# Import modular API routers. Each module represents a distinct business domain.
 from app.modules.auth.routes          import router as auth_router
 from app.modules.rm_master.routes     import router as rm_router
 from app.modules.vendor.routes        import router as vendor_router
@@ -12,6 +13,8 @@ from app.modules.procurement.routes   import router as procurement_router
 from app.modules.inventory.routes     import router as inventory_router
 from app.modules.station.routes       import router as station_router
 
+# ── APP INITIALIZATION ────────────────────────────────
+# Main FastAPI application instance. This is the entry point for Uvicorn.
 app = FastAPI(
     title=settings.APP_NAME,
     version='1.0.0',
@@ -20,6 +23,8 @@ app = FastAPI(
     redoc_url='/redoc',
 )
  
+# ── MIDDLEWARE ────────────────────────────────────────
+# Configure CORS to allow the frontend React app to communicate with this backend.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -28,6 +33,8 @@ app.add_middleware(
     allow_headers=['*'],
 )
  
+# ── ROUTE REGISTRATION ────────────────────────────────
+# Mount all domain routers under the /api/v1 prefix to support versioning.
 app.include_router(auth_router,        prefix='/api/v1/auth',            tags=['Authentication'])
 app.include_router(rm_router,          prefix='/api/v1/rm-master',      tags=['RM Master'])
 app.include_router(vendor_router,      prefix='/api/v1/vendors',         tags=['Vendors'])

@@ -5,6 +5,10 @@ from uuid import UUID
 from datetime import date, datetime
 
 class StockBalanceResponse(BaseModel):
+    """
+    Schema for serializing a single row in the Stock Balance report.
+    Includes both raw database values and enriched human-readable names.
+    """
     inventory_id: UUID
     rm_id: UUID
     store_id: UUID
@@ -24,6 +28,10 @@ class StockBalanceResponse(BaseModel):
         from_attributes = True
  
 class ConsumptionRequest(BaseModel):
+    """
+    Payload schema for reporting raw material consumption.
+    Enforces that consumed quantity must be strictly positive (gt=0).
+    """
     rm_id: UUID
     store_id: UUID
     qty: float = Field(..., gt=0)
@@ -32,6 +40,10 @@ class ConsumptionRequest(BaseModel):
     remarks: Optional[str] = None
  
 class TransferRequest(BaseModel):
+    """
+    Payload schema for requesting an internal store-to-store transfer.
+    Enforces positive quantity to prevent reverse transfers via negative numbers.
+    """
     rm_id: UUID
     from_store_id: UUID
     to_store_id: UUID
@@ -39,6 +51,10 @@ class TransferRequest(BaseModel):
     remarks: Optional[str] = None
  
 class InventoryLedgerResponse(BaseModel):
+    """
+    Schema for serializing historical stock transactions (The Ledger).
+    Captures the exact balance before and after the transaction for auditing.
+    """
     log_id: UUID
     rm_id: UUID
     store_id: UUID
