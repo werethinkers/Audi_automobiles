@@ -76,29 +76,29 @@ export default function StoreForm() {
         backHref="/stores"
       />
  
-      <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Store Name *</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Store Name *</label>
             <input
               type="text" required value={storeName} onChange={e => setStoreName(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Location</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Location</label>
             <input
               type="text" value={location} onChange={e => setLocation(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
           {isEdit && (
             <div className="flex items-center gap-2 pt-2">
               <input
                 type="checkbox" id="isActive" checked={isActive} onChange={e => setIsActive(e.target.checked)}
-                className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                className="w-4 h-4 text-green-600 focus:ring-green-500 border-slate-300 rounded cursor-pointer"
               />
-              <label htmlFor="isActive" className="text-sm font-semibold text-slate-600">Active Store</label>
+              <label htmlFor="isActive" className="text-sm font-semibold text-slate-600 cursor-pointer">Active Store</label>
             </div>
           )}
         </div>
@@ -108,7 +108,7 @@ export default function StoreForm() {
             {isEdit && (
               <button
                 type="button" onClick={handleDelete}
-                className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+                className="px-4 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
               >
                 Deactivate
               </button>
@@ -117,13 +117,13 @@ export default function StoreForm() {
           <div className="flex gap-3">
             <button
               type="button" onClick={() => navigate('/stores')}
-              className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 shadow-sm transition-colors cursor-pointer"
             >
               Save Changes
             </button>

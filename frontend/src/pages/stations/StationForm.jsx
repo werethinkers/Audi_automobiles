@@ -109,98 +109,101 @@ export default function StationForm() {
         backHref="/stations"
       />
 
-      <div className="bg-white rounded border border-slate-200 p-6">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-5">
-
+ 
           <div>
-            <label className="block text-sm mb-1">
-              Station Code
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Station Code *
             </label>
-
+ 
             <input
-              className="w-full border rounded px-3 py-2"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 text-sm text-slate-800 transition-all bg-white"
               name="station_code"
               value={formData.station_code}
               onChange={handleChange}
+              placeholder="e.g. ST-WELD"
               required
             />
           </div>
-
+ 
           <div>
-            <label className="block text-sm mb-1">
-              Station Name
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Station Name *
             </label>
-
+ 
             <input
-              className="w-full border rounded px-3 py-2"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 text-sm text-slate-800 transition-all bg-white"
               name="station_name"
               value={formData.station_name}
               onChange={handleChange}
+              placeholder="e.g. Welding Station"
               required
             />
           </div>
-
+ 
           <div>
-            <label className="block text-sm mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
               Description
             </label>
-
+ 
             <textarea
-              className="w-full border rounded px-3 py-2"
-              rows={5}
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 text-sm text-slate-800 transition-all bg-white"
+              rows={4}
               name="station_description"
               value={formData.station_description}
               onChange={handleChange}
+              placeholder="Optional details about this station..."
             />
           </div>
-
-          <div className="flex justify-between items-center pt-4">
-
+ 
+          <div className="flex justify-between items-center border-t border-slate-100 pt-6">
+ 
             <div className="flex gap-3">
-
+ 
               {isEdit && (
                 <>
                   <button
                     type="button"
                     onClick={handleDeactivate}
-                    className="border border-orange-300 text-orange-600 px-4 py-2 rounded hover:bg-orange-50"
+                    className="border border-amber-200 text-amber-700 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-amber-50 transition-colors"
                   >
                     Deactivate
                   </button>
-
+ 
                   <button
                     type="button"
                     onClick={handleHardDelete}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    className="bg-red-50 text-red-600 border border-red-200 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors"
                   >
                     Delete
                   </button>
                 </>
               )}
-
+ 
             </div>
-
+ 
             <div className="flex gap-3">
-
+ 
               <button
                 type="button"
-                className="border px-4 py-2 rounded"
+                className="border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
                 onClick={() => navigate('/stations')}
               >
                 Cancel
               </button>
-
+ 
               <button
                 type="submit"
-                className="bg-[#3498db] text-white px-4 py-2 rounded"
+                className="bg-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-purple-700 transition-colors shadow-sm"
               >
                 {isEdit ? 'Save Changes' : 'Save Station'}
               </button>
-
+ 
             </div>
-
+ 
           </div>
-
+ 
         </form>
       </div>
     </div>

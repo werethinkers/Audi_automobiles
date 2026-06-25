@@ -97,93 +97,93 @@ export default function VendorForm() {
         backHref="/vendors"
       />
  
-      <form onSubmit={handleSubmit} className="bg-white rounded border border-slate-200 shadow-sm p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Vendor Name *</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Vendor Name *</label>
               <input
                 type="text" required value={name} onChange={e => setName(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Contact Person</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Contact Person</label>
               <input
                 type="text" value={contactPerson} onChange={e => setContactPerson(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Phone</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Phone</label>
               <input
                 type="text" value={phone} onChange={e => setPhone(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Email</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email</label>
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Payment Terms</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Payment Terms</label>
               <input
                 type="text" placeholder="e.g. Net 30, COD" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
           </div>
- 
+  
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">GST Number</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">GST Number</label>
               <input
                 type="text" value={gstNumber} onChange={e => setGstNumber(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Address Line 1</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Address Line 1</label>
               <input
                 type="text" value={addressLine1} onChange={e => setAddressLine1(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">City</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">City</label>
               <input
                 type="text" value={city} onChange={e => setCity(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">State</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">State</label>
               <input
                 type="text" value={state} onChange={e => setState(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
               />
             </div>
             {isEdit && (
               <div className="flex items-center gap-2 pt-6">
                 <input
                   type="checkbox" id="isActive" checked={isActive} onChange={e => setIsActive(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer"
                 />
-                <label htmlFor="isActive" className="text-sm font-semibold text-slate-600">Active Listing</label>
+                <label htmlFor="isActive" className="text-sm font-semibold text-slate-600 cursor-pointer">Active Listing</label>
               </div>
             )}
           </div>
         </div>
- 
+  
         <div className="flex justify-between items-center border-t border-slate-100 pt-6">
           <div>
             {isEdit && (
               <button
                 type="button" onClick={handleDelete}
-                className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+                className="px-4 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
               >
                 Deactivate
               </button>
@@ -192,13 +192,13 @@ export default function VendorForm() {
           <div className="flex gap-3">
             <button
               type="button" onClick={() => navigate('/vendors')}
-              className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors cursor-pointer"
             >
               Save Changes
             </button>

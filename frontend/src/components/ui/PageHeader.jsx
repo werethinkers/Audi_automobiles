@@ -8,10 +8,21 @@ import { ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
  * @param {string}   subtitle
  * @param {Array}    breadcrumb  - Array of { label, href } objects, or plain strings (non-clickable)
  * @param {string}   backHref    - If provided, shows a ← Back button that navigates here
- * @param {Array}    actions     - Array of { label, onClick, primary, danger, icon }
+ * @param {Array}    actions     - Array of { label, onClick, primary, danger, icon, color }
+ *                                 color on primary: 'blue' | 'green' | 'orange' | 'purple' | 'amber'
  */
 export default function PageHeader({ title, subtitle, breadcrumb = [], backHref, actions = [] }) {
   const navigate = useNavigate()
+
+  // Map section-level color to button style
+  const primaryColorMap = {
+    blue:   'bg-blue-600 hover:bg-blue-700',
+    green:  'bg-green-600 hover:bg-green-700',
+    orange: 'bg-orange-500 hover:bg-orange-600',
+    purple: 'bg-purple-600 hover:bg-purple-700',
+    amber:  'bg-amber-500 hover:bg-amber-600',
+    slate:  'bg-slate-700 hover:bg-slate-800',
+  }
 
   return (
     <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-5 gap-3 font-sans">
@@ -30,7 +41,7 @@ export default function PageHeader({ title, subtitle, breadcrumb = [], backHref,
                   {href && !isLast ? (
                     <Link
                       to={href}
-                      className="hover:text-[#3498db] transition-colors cursor-pointer"
+                      className="hover:text-blue-600 transition-colors cursor-pointer"
                     >
                       {label}
                     </Link>
@@ -48,14 +59,14 @@ export default function PageHeader({ title, subtitle, breadcrumb = [], backHref,
           {backHref && (
             <button
               onClick={() => navigate(backHref)}
-              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-[#2c3e50] transition-colors cursor-pointer flex-shrink-0 shadow-sm"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer flex-shrink-0 shadow-sm"
               title="Go back"
             >
               <ArrowLeftIcon className="w-4 h-4" />
             </button>
           )}
           <div>
-            <h2 className="text-xl font-black text-[#2c3e50] tracking-tight leading-tight">{title}</h2>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight leading-tight">{title}</h2>
             {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
           </div>
         </div>
@@ -63,25 +74,28 @@ export default function PageHeader({ title, subtitle, breadcrumb = [], backHref,
 
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-2.5 flex-shrink-0 md:mt-0.5">
-          {actions.map((act, index) => (
-            <button
-              key={index}
-              onClick={act.onClick}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg shadow-sm
-                transition-all duration-150 cursor-pointer
-                ${act.primary
-                  ? 'bg-[#3498db] hover:bg-[#2980b9] text-white'
-                  : act.danger
-                  ? 'bg-red-50 hover:bg-red-100 border border-red-200 text-red-600'
-                  : 'bg-white hover:bg-slate-50 border border-slate-200 text-[#2c3e50]'
-                }
-              `}
-            >
-              {act.icon && <act.icon className="w-4 h-4" />}
-              {act.label}
-            </button>
-          ))}
+          {actions.map((act, index) => {
+            const primaryCls = primaryColorMap[act.color || 'blue'] || primaryColorMap.blue
+            return (
+              <button
+                key={index}
+                onClick={act.onClick}
+                className={`
+                  inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg shadow-sm
+                  transition-all duration-150 cursor-pointer
+                  ${act.primary
+                    ? `${primaryCls} text-white`
+                    : act.danger
+                    ? 'bg-red-50 hover:bg-red-100 border border-red-200 text-red-600'
+                    : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700'
+                  }
+                `}
+              >
+                {act.icon && <act.icon className="w-4 h-4" />}
+                {act.label}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
