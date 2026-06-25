@@ -5,47 +5,75 @@ import { toast } from 'react-hot-toast'
 import DataTable from '../../components/ui/DataTable'
 import PageHeader from '../../components/ui/PageHeader'
 import ConfirmModal from '../../components/ui/ConfirmModal'
-import { MagnifyingGlassIcon, SignalIcon } from '@heroicons/react/24/outline'
-
-const COLUMNS = [
-  {
-    key: 'station_name',
-    header: 'Station Name',
-    render: v => <span className="font-bold text-slate-800">{v}</span>,
-  },
-  {
-    key: 'station_code',
-    header: 'Station Code',
-    render: v => (
-      v ? (
-        <span className="font-mono text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
-          {v}
-        </span>
-      ) : <span className="text-slate-300">—</span>
-    ),
-  },
-  {
-    key: 'station_description',
-    header: 'Description',
-    render: v => v ? <span className="text-slate-600 max-w-xs truncate block">{v}</span> : <span className="text-slate-300">—</span>,
-  },
-  {
-    key: 'is_active',
-    header: 'Status',
-    render: v => (
-      <span
-        className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-          v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
-        }`}
-      >
-        {v ? 'Active' : 'Inactive'}
-      </span>
-    ),
-  },
-]
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 export default function StationList() {
   const navigate = useNavigate()
+
+  const COLUMNS = [
+    {
+      key: 'station_name',
+      header: 'Station Name',
+      render: v => (
+        <span className="font-bold text-slate-800">{v}</span>
+      ),
+    },
+    {
+      key: 'station_code',
+      header: 'Station Code',
+      render: v =>
+        v ? (
+          <span className="font-mono text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
+            {v}
+          </span>
+        ) : (
+          <span className="text-slate-300">—</span>
+        ),
+    },
+    {
+      key: 'station_description',
+      header: 'Description',
+      render: v =>
+        v ? (
+          <span className="text-slate-600 max-w-xs truncate block">
+            {v}
+          </span>
+        ) : (
+          <span className="text-slate-300">—</span>
+        ),
+    },
+    {
+      key: 'is_active',
+      header: 'Status',
+      render: v => (
+        <span
+          className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+            v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+          }`}
+        >
+          {v ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'operations',
+      header: 'Operations',
+      render: (_, row) => (
+        <button
+          className="text-sm font-semibold text-purple-600 hover:text-purple-800 hover:underline"
+          onClick={e => {
+            e.stopPropagation()
+            navigate(`/stations/${row.station_id}/operations`,
+              { state: { stationName: row.station_name } }
+            )
+          }}
+        >
+          {row.station_name} Operations
+        </button>
+      ),
+    },
+  ]
+
   const [search, setSearch] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
@@ -74,7 +102,10 @@ export default function StationList() {
       <PageHeader
         title="Production Stations"
         subtitle="Manage production stations and their codes"
-        breadcrumb={[{ label: 'Masters', href: '/dashboard' }, { label: 'Stations' }]}
+        breadcrumb={[
+          { label: 'Masters', href: '/dashboard' },
+          { label: 'Stations' },
+        ]}
         actions={[
           {
             label: '+ Add Station',
@@ -88,6 +119,7 @@ export default function StationList() {
         <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
             <input
               className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
               placeholder="Search station name, code..."
@@ -95,8 +127,10 @@ export default function StationList() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
+
           <span className="text-xs text-slate-400 font-medium ml-auto hidden sm:block">
-            {filtered?.length ?? 0} result{filtered?.length !== 1 ? 's' : ''}
+            {filtered?.length ?? 0} result
+            {(filtered?.length ?? 0) !== 1 ? 's' : ''}
           </span>
         </div>
 
@@ -122,3 +156,4 @@ export default function StationList() {
     </div>
   )
 }
+
