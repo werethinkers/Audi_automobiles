@@ -1,18 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from uuid import UUID
 from typing import List, Optional
+from uuid import UUID
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.rm_models import StationMaster
 from .schemas import StationCreate, StationUpdate, StationResponse
+from .service import (
+    list_stations_service,
+    create_station_service,
+    get_station_service,
+    update_station_service,
+    delete_station_service,
+    permanent_delete_station_service
+)
 
 router = APIRouter()
 
 
-@router.get('/', response_model=List[StationResponse])
+@router.get("/", response_model=List[StationResponse])
 async def list_stations(
     skip: int = 0,
     limit: int = 100,
@@ -20,125 +26,55 @@ async def list_stations(
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    stmt = select(StationMaster)
-
-    if is_active is not None and is_active.lower() not in ('null', 'none', ''):
-        active_val = is_active.lower() in ('true', '1', 'yes')
-        stmt = stmt.where(StationMaster.is_active == active_val)
-
-    stmt = stmt.offset(skip).limit(limit)
-    result = await db.execute(stmt)
-    return list(result.scalars().all())
+    return await list_stations_service(
+        db=db,
+        skip=skip,
+        limit=limit,
+        is_active=is_active
+    )
 
 
-@router.post('/', response_model=StationResponse, status_code=201)
+@router.post("/", response_model=StationResponse, status_code=201)
 async def create_station(
     data: StationCreate,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    # Check if station code already exists
-    stmt = select(StationMaster).where(
-        StationMaster.station_code == data.station_code
-    )
-
-    result = await db.execute(stmt)
-    existing_station = result.scalar_one_or_none()
-
-    if existing_station:
-        raise HTTPException(
-            status_code=400,
-            detail="Station code already exists"
-        )
-
-    station = StationMaster(
-        **data.model_dump(exclude_none=True)
-    )
-
-    db.add(station)
-
-    await db.commit()
-    await db.refresh(station)
-
-    return station
+    return await create_station_service(db, data)
 
 
-@router.get('/{station_id}', response_model=StationResponse)
+@router.get("/{station_id}", response_model=StationResponse)
 async def get_station(
     station_id: UUID,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    station = await db.get(StationMaster, station_id)
-
-    if not station:
-        raise HTTPException(404, 'Station not found')
-
-    return station
+    return await get_station_service(db, station_id)
 
 
-@router.put('/{station_id}', response_model=StationResponse)
+@router.put("/{station_id}", response_model=StationResponse)
 async def update_station(
     station_id: UUID,
     data: StationUpdate,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    station = await db.get(StationMaster, station_id)
+    return await update_station_service(db, station_id, data)
 
-    if not station:
-        raise HTTPException(404, "Station not found")
 
-    update_data = data.model_dump(exclude_none=True)
-
-    # Check duplicate station code
-    if "station_code" in update_data:
-        stmt = select(StationMaster).where(
-            StationMaster.station_code == update_data["station_code"],
-            StationMaster.station_id != station_id
-        )
-
-        result = await db.execute(stmt)
-
-        if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=400,
-                detail="Station code already exists"
-            )
-
-    for key, value in update_data.items():
-        setattr(station, key, value)
-
-    await db.commit()
-    await db.refresh(station)
-
-    return station
-
-@router.delete('/{station_id}/permanent', status_code=204)
+@router.delete("/{station_id}/permanent", status_code=204)
 async def permanent_delete_station(
     station_id: UUID,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    station = await db.get(StationMaster, station_id)
+    await permanent_delete_station_service(db, station_id)
 
-    if not station:
-        raise HTTPException(404, 'Station not found')
 
-    await db.delete(station)
-    await db.commit()
-
-@router.delete('/{station_id}', status_code=204)
+@router.delete("/{station_id}", status_code=204)
 async def delete_station(
     station_id: UUID,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
-    station = await db.get(StationMaster, station_id)
-
-    if not station:
-        raise HTTPException(404, 'Station not found')
-
-    station.is_active = False
-
-    await db.commit()
+    await delete_station_service(db, station_id)
