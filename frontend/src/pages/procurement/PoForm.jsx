@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useCreatePo } from '../../api/procurement'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useCreatePo, usePoDetail, useUpdatePo } from '../../api/procurement'
 import { useVendorList } from '../../api/vendor'
 import { useRmList } from '../../api/rm'
 import api from '../../api/client'
@@ -10,8 +10,12 @@ import { toast } from 'react-hot-toast'
 import { TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
  
 export default function PoForm() {
+  const { id } = useParams()
+  const isEdit = !!id
   const navigate = useNavigate()
   const createMutation = useCreatePo()
+  const updateMutation = useUpdatePo()
+  const { data: po, isLoading: poLoading } = usePoDetail(id)
   
   const { data: vendors } = useVendorList({ is_active: true })
   const { data: rms } = useRmList({ is_active: true })
@@ -36,9 +40,27 @@ export default function PoForm() {
  
   // Generate random PO number for ease
   useEffect(() => {
-    const num = 'PO-' + Math.floor(100000 + Math.random() * 900000)
-    setPoNumber(num)
-  }, [])
+    if (!isEdit) {
+      const num = 'PO-' + Math.floor(100000 + Math.random() * 900000)
+      setPoNumber(num)
+    }
+  }, [isEdit])
+
+  useEffect(() => {
+    if (isEdit && po) {
+      setPoNumber(po.po_number || '')
+      setVendorId(po.vendor_id || '')
+      setOrderDate(po.order_date || '')
+      setExpectedDate(po.expected_delivery_date || '')
+      setNotes(po.notes || '')
+      setLines(po.details?.map(d => ({
+        rm_id: d.rm_id,
+        order_qty: d.order_qty,
+        unit_price: d.unit_price,
+        gst_percent: d.gst_percent ?? 18
+      })) || [])
+    }
+  }, [isEdit, po])
  
   const addLine = () => {
     setLines([...lines, { rm_id: '', order_qty: 1, unit_price: 0, gst_percent: 18 }])
@@ -96,22 +118,31 @@ export default function PoForm() {
     }
  
     try {
-      await createMutation.mutateAsync(payload)
-      toast.success('Purchase Order created in DRAFT!')
+      if (isEdit) {
+        await updateMutation.mutateAsync({ id, data: payload })
+        toast.success('Purchase Order updated!')
+      } else {
+        await createMutation.mutateAsync(payload)
+        toast.success('Purchase Order created in DRAFT!')
+      }
       navigate('/purchase-orders')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error creating Purchase Order')
+      toast.error(err.response?.data?.detail || 'Error saving Purchase Order')
     }
   }
  
+  if (isEdit && poLoading) {
+    return <div className="p-8 text-center text-slate-500 font-sans">Loading details...</div>
+  }
+
   return (
     <div className="p-6 space-y-6 font-sans">
       <PageHeader
-        title="Create Purchase Order"
+        title={isEdit ? 'Edit Purchase Order' : 'Create Purchase Order'}
         breadcrumb={[
           { label: 'Procurement', href: '/dashboard' },
           { label: 'Purchase Orders', href: '/purchase-orders' },
-          { label: 'New' },
+          { label: isEdit ? 'Edit' : 'New' },
         ]}
         backHref="/purchase-orders"
       />
@@ -120,17 +151,17 @@ export default function PoForm() {
         {/* Header Fields */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">PO Number *</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">PO Number *</label>
             <input
               type="text" required value={poNumber} onChange={e => setPoNumber(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Vendor *</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Vendor *</label>
             <select
               value={vendorId} required onChange={e => setVendorId(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm bg-white"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white cursor-pointer"
             >
               <option value="">Select Vendor</option>
               {vendors?.map(v => (
@@ -139,24 +170,24 @@ export default function PoForm() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Order Date *</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Order Date *</label>
             <input
               type="date" required value={orderDate} onChange={e => setOrderDate(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Expected Delivery Date</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Expected Delivery Date</label>
             <input
               type="date" value={expectedDate} onChange={e => setExpectedDate(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Notes</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Notes</label>
             <input
               type="text" placeholder="Add custom terms, payment schedules..." value={notes} onChange={e => setNotes(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
             />
           </div>
         </div>
@@ -167,7 +198,7 @@ export default function PoForm() {
             <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Line Items</h3>
             <button
               type="button" onClick={addLine}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer transition-all"
             >
               <PlusIcon className="w-4 h-4" />
               Add Row
@@ -178,10 +209,10 @@ export default function PoForm() {
             {lines.map((line, index) => (
               <div key={index} className="flex flex-col md:flex-row gap-4 items-end bg-slate-50/40 p-4 rounded-xl border border-slate-200/40">
                 <div className="flex-1 min-w-[200px]">
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Raw Material *</label>
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Raw Material *</label>
                   <select
                     value={line.rm_id} required onChange={e => updateLine(index, 'rm_id', e.target.value)}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm bg-white"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white cursor-pointer"
                   >
                     <option value="">Select Material</option>
                     {rms?.map(r => (
@@ -191,42 +222,42 @@ export default function PoForm() {
                 </div>
                 
                 <div className="w-full md:w-32">
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Order Qty *</label>
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Order Qty *</label>
                   <input
                     type="number" step="any" min="0.001" required value={line.order_qty}
                     onChange={e => updateLine(index, 'order_qty', e.target.value)}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
                   />
                 </div>
  
                 <div className="w-full md:w-36">
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Unit Price * (INR)</label>
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Unit Price * (INR)</label>
                   <input
                     type="number" step="any" min="0" required value={line.unit_price}
                     onChange={e => updateLine(index, 'unit_price', e.target.value)}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
                   />
                 </div>
  
                 <div className="w-full md:w-24">
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">GST %</label>
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">GST %</label>
                   <input
                     type="number" step="any" min="0" value={line.gst_percent}
                     onChange={e => updateLine(index, 'gst_percent', e.target.value)}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-sm text-slate-800 transition-all bg-white"
                   />
                 </div>
  
                 <div className="w-full md:w-36 text-right">
                   <span className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Line Sum</span>
-                  <span className="text-sm font-semibold text-slate-700 block py-1.5">
+                  <span className="text-sm font-semibold text-slate-700 block py-2">
                     ₹{calculateLineTotal(line).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
                 </div>
  
                 <button
                   type="button" disabled={lines.length === 1} onClick={() => removeLine(index)}
-                  className="p-2 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 rounded-lg disabled:opacity-30 cursor-pointer"
+                  className="p-2 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 rounded-xl disabled:opacity-30 cursor-pointer transition-all"
                 >
                   <TrashIcon className="w-5 h-5" />
                 </button>
@@ -246,15 +277,15 @@ export default function PoForm() {
           <div className="flex gap-3">
             <button
               type="button" onClick={() => navigate('/purchase-orders')}
-              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/10 transition-colors cursor-pointer"
             >
-              Save Draft PO
+              {isEdit ? 'Update PO' : 'Save Draft PO'}
             </button>
           </div>
         </div>

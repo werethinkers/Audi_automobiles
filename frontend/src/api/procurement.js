@@ -7,7 +7,8 @@ const KEYS = {
   po_list: ['po', 'list'],
   po_detail: (id) => ['po', id],
   grn_all: ['grn'],
-  grn_list: ['grn', 'list']
+  grn_list: ['grn', 'list'],
+  grn_detail: (id) => ['grn', id]
 }
  
 // ── PO HOOKS ─────────────────────────────────────────
@@ -33,6 +34,17 @@ export const useCreatePo = () => {
   })
 }
  
+export const useUpdatePo = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.put(`/procurement/purchase-orders/${id}`, data).then(r => r.data),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: KEYS.po_all })
+      qc.invalidateQueries({ queryKey: KEYS.po_detail(id) })
+    },
+  })
+}
+
 export const useUpdatePoStatus = () => {
   const qc = useQueryClient()
   return useMutation({
@@ -59,6 +71,13 @@ export const useGrnList = () =>
     staleTime: 5 * 60 * 1000,
   })
  
+export const useGrnDetail = (id) =>
+  useQuery({
+    queryKey: KEYS.grn_detail(id),
+    queryFn: () => api.get(`/procurement/grn/${id}`).then(r => r.data),
+    enabled: !!id,
+  })
+ 
 export const useCreateGrn = () => {
   const qc = useQueryClient()
   return useMutation({
@@ -71,6 +90,19 @@ export const useCreateGrn = () => {
   })
 }
 
+export const useUpdateGrn = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.put(`/procurement/grn/${id}`, data).then(r => r.data),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: KEYS.grn_all })
+      qc.invalidateQueries({ queryKey: KEYS.grn_detail(id) })
+      qc.invalidateQueries({ queryKey: KEYS.po_all })
+      qc.invalidateQueries({ queryKey: ['inventory'] })
+    },
+  })
+}
+ 
 export const useDeleteGrn = () => {
   const qc = useQueryClient()
   return useMutation({

@@ -12,6 +12,7 @@ from app.modules.store.routes         import router as store_router
 from app.modules.procurement.routes   import router as procurement_router
 from app.modules.inventory.routes     import router as inventory_router
 from app.modules.station.routes       import router as station_router
+from app.modules.bom.routes           import router as bom_router
 
 # ── APP INITIALIZATION ────────────────────────────────
 # Main FastAPI application instance. This is the entry point for Uvicorn.
@@ -42,6 +43,7 @@ app.include_router(store_router,       prefix='/api/v1/stores',          tags=['
 app.include_router(station_router,     prefix='/api/v1/stations',        tags=['Stations'])
 app.include_router(procurement_router, prefix='/api/v1/procurement',     tags=['Procurement'])
 app.include_router(inventory_router,   prefix='/api/v1/inventory',       tags=['Inventory'])
+app.include_router(bom_router,         prefix='/api/v1/bom',             tags=['BOM'])
 
 @app.get('/health')
 async def health():

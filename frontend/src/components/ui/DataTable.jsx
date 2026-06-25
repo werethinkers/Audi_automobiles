@@ -21,10 +21,13 @@ function SkeletonRow({ cols }) {
  * @param {Function} onRowClick   - Called with the row when the row is clicked
  * @param {Function} onEdit       - If provided, shows an Edit button per row
  * @param {Function} onDelete     - If provided, shows a Delete button per row
- * @param {string}   rowIdKey     - Key used to identify the row (default: 'id')
+ * @param {string}   hoverColor   - Tailwind hover bg class e.g. 'hover:bg-blue-50/40'
+ * @param {string}   editColor    - Tailwind classes for edit icon hover
  */
-export default function DataTable({ columns, data, onRowClick, loading, onEdit, onDelete }) {
+export default function DataTable({ columns, data, onRowClick, loading, onEdit, onDelete, hoverColor, editColor }) {
   const hasActions = onEdit || onDelete
+  const rowHover   = hoverColor  || 'hover:bg-blue-50/40'
+  const editHover  = editColor   || 'hover:text-blue-600 hover:bg-blue-50'
 
   if (loading) {
     return (
@@ -82,7 +85,7 @@ export default function DataTable({ columns, data, onRowClick, loading, onEdit, 
             <tr
               key={i}
               onClick={() => onRowClick?.(row)}
-              className={`group transition-colors duration-100 ${onRowClick ? 'cursor-pointer hover:bg-[#3498db]/5' : ''}`}
+              className={`group transition-colors duration-100 ${onRowClick ? `cursor-pointer ${rowHover}` : ''}`}
             >
               {columns.map(col => (
                 <td key={col.key} className="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">
@@ -96,7 +99,7 @@ export default function DataTable({ columns, data, onRowClick, loading, onEdit, 
                       <button
                         title="Edit"
                         onClick={e => { e.stopPropagation(); onEdit(row) }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-[#3498db] hover:bg-[#3498db]/10 transition-colors cursor-pointer"
+                        className={`p-1.5 rounded-lg text-slate-400 ${editHover} transition-colors cursor-pointer`}
                       >
                         <PencilSquareIcon className="w-4 h-4" />
                       </button>

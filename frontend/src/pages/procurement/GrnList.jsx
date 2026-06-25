@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGrnList, usePoList, useDeleteGrn } from '../../api/procurement'
+import { useGrnList, usePoList } from '../../api/procurement'
 import { useVendorList } from '../../api/vendor'
-import { toast } from 'react-hot-toast'
 import DataTable from '../../components/ui/DataTable'
 import PageHeader from '../../components/ui/PageHeader'
 import StatCard from '../../components/ui/StatCard'
-import ConfirmModal from '../../components/ui/ConfirmModal'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import {
   ClipboardDocumentCheckIcon,
@@ -17,22 +15,20 @@ import {
 
 function GrnStatusBadge({ status }) {
   const map = {
-    PENDING_QA: { label: 'Pending QA',  cls: 'bg-amber-100 text-amber-700' },
-    COMPLETED:  { label: 'Completed',   cls: 'bg-green-100 text-green-700' },
-    REJECTED:   { label: 'Rejected',    cls: 'bg-red-100 text-red-700'     },
+    PENDING_QA: { label: 'Pending QA',  cls: 'bg-amber-50 text-amber-700' },
+    COMPLETED:  { label: 'Completed',   cls: 'bg-emerald-50 text-emerald-700' },
+    REJECTED:   { label: 'Rejected',    cls: 'bg-red-50 text-red-700'     },
   }
   const info = map[status] || { label: status || '—', cls: 'bg-slate-100 text-slate-500' }
-  return <span className={`text-xs font-bold px-2.5 py-0.5 rounded ${info.cls}`}>{info.label}</span>
+  return <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${info.cls}`}>{info.label}</span>
 }
 
 export default function GrnList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [deleteTarget, setDeleteTarget] = useState(null)
   const { data: grns,    isLoading } = useGrnList()
   const { data: pos }                = usePoList()
   const { data: vendors }            = useVendorList()
-  const deleteMutation               = useDeleteGrn()
 
   const getPoNumber  = id => pos?.find(p => p.po_id === id)?.po_number || '—'
   const getVendor    = id => vendors?.find(v => v.vendor_id === id)?.name || '—'
@@ -50,19 +46,9 @@ export default function GrnList() {
       getVendor(g.vendor_id).toLowerCase().includes(q)
   })
 
-  const handleDelete = async () => {
-    try {
-      await deleteMutation.mutateAsync(deleteTarget.grn_id)
-      toast.success(`GRN "${deleteTarget.grn_number}" deleted`)
-      setDeleteTarget(null)
-    } catch {
-      toast.error('Failed to delete GRN')
-    }
-  }
-
   const COLUMNS = [
-    { key: 'grn_number',     header: 'GRN Number',    render: v => <span className="font-mono font-bold text-[#3498db]">{v}</span> },
-    { key: 'po_id',          header: 'PO Number',     render: v => <span className="font-semibold text-[#2c3e50]">{getPoNumber(v)}</span> },
+    { key: 'grn_number',     header: 'GRN Number',    render: v => <span className="font-mono font-bold text-blue-600">{v}</span> },
+    { key: 'po_id',          header: 'PO Number',     render: v => <span className="font-semibold text-slate-800">{getPoNumber(v)}</span> },
     { key: 'vendor_id',      header: 'Vendor',        render: v => getVendor(v) },
     { key: 'received_date',  header: 'Received Date', render: v => v ? new Date(v).toLocaleDateString('en-GB') : '—' },
     { key: 'vehicle_number', header: 'Vehicle No.',   render: v => v || <span className="text-slate-300">—</span> },
@@ -83,12 +69,12 @@ export default function GrnList() {
         <StatCard title="Completed"   value={completed} sub="Cleared & stocked"  icon={CheckCircleIcon}            color="green" />
         <StatCard title="Rejected"    value={rejected}  sub="Failed QA"          icon={XCircleIcon}                color="red"   />
       </div>
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center gap-3">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
               placeholder="Search GRN, PO, vendor..."
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -102,19 +88,10 @@ export default function GrnList() {
           columns={COLUMNS}
           data={filtered}
           loading={isLoading}
-          onDelete={row => setDeleteTarget(row)}
+          onRowClick={row => navigate(`/grn/${row.grn_id}`)}
+          onEdit={row => navigate(`/grn/${row.grn_id}`)}
         />
       </div>
-
-      <ConfirmModal
-        open={!!deleteTarget}
-        title="Delete GRN Record"
-        message={`Permanently delete GRN "${deleteTarget?.grn_number}"? Note: Stock adjustments already posted will NOT be reversed. This action cannot be undone.`}
-        confirmLabel="Delete GRN"
-        loading={deleteMutation.isPending}
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
     </div>
   )
 }

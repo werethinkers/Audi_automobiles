@@ -11,14 +11,14 @@ const COLUMNS = [
   {
     key: 'station_name',
     header: 'Station Name',
-    render: v => <span className="font-bold text-[#2c3e50]">{v}</span>,
+    render: v => <span className="font-bold text-slate-800">{v}</span>,
   },
   {
     key: 'station_code',
     header: 'Station Code',
     render: v => (
       v ? (
-        <span className="font-mono text-xs text-[#3498db] bg-[#3498db]/10 px-2 py-0.5 rounded">
+        <span className="font-mono text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
           {v}
         </span>
       ) : <span className="text-slate-300">—</span>
@@ -34,11 +34,11 @@ const COLUMNS = [
     header: 'Status',
     render: v => (
       <span
-        className={`text-xs font-bold px-2.5 py-0.5 rounded ${
-          v ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
+        className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+          v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
         }`}
       >
-        {v ? '● Active' : '● Inactive'}
+        {v ? 'Active' : 'Inactive'}
       </span>
     ),
   },
@@ -84,12 +84,12 @@ export default function StationList() {
         ]}
       />
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center gap-3">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
               placeholder="Search station name, code..."
               value={search}
               onChange={e => setSearch(e.target.value)}
