@@ -19,10 +19,7 @@ import {
   TruckIcon,
   ShieldExclamationIcon,
   ClockIcon,
-  CheckBadgeIcon,
-  SparklesIcon,
   TrashIcon,
-  ArrowLeftIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline'
 
@@ -30,7 +27,7 @@ import {
 function Field({ label, required, hint, children }) {
   return (
     <div>
-      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
@@ -42,10 +39,10 @@ function Field({ label, required, hint, children }) {
 // ── Section header ─────────────────────────────────────────────────────────────
 function SectionHeader({ icon: Icon, title, subtitle, color = 'blue' }) {
   const colorMap = {
-    blue:   'bg-[#3498db]/10 text-[#3498db] border-[#3498db]/20',
+    blue:   'bg-blue-50 text-blue-600 border-blue-100',
     purple: 'bg-purple-50 text-purple-600 border-purple-200',
     amber:  'bg-amber-50 text-amber-600 border-amber-200',
-    green:  'bg-green-50 text-green-600 border-green-200',
+    green:  'bg-emerald-50 text-emerald-600 border-emerald-200',
   }
   return (
     <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
@@ -53,7 +50,7 @@ function SectionHeader({ icon: Icon, title, subtitle, color = 'blue' }) {
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <h3 className="text-sm font-bold text-[#2c3e50]">{title}</h3>
+        <h3 className="text-sm font-bold text-slate-800">{title}</h3>
         {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
       </div>
     </div>
@@ -61,7 +58,7 @@ function SectionHeader({ icon: Icon, title, subtitle, color = 'blue' }) {
 }
 
 // ── Input styles ───────────────────────────────────────────────────────────────
-const inputCls = "w-full px-3.5 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 text-sm text-[#2c3e50] transition-all bg-white"
+const inputCls = "w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 text-sm text-slate-800 transition-all bg-white"
 const selectCls = inputCls + " cursor-pointer"
 
 export default function RmForm() {
@@ -146,7 +143,7 @@ export default function RmForm() {
     return (
       <div className="p-6 flex items-center justify-center min-h-64">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
           <p className="text-sm text-slate-500 font-medium">Loading material details...</p>
         </div>
       </div>
@@ -170,7 +167,7 @@ export default function RmForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* ── Section 1: Basic Info ────────────────────────────────── */}
-        <div className="bg-white rounded border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6">
           <SectionHeader
             icon={CubeIcon}
             title="Basic Information"
@@ -226,7 +223,7 @@ export default function RmForm() {
         </div>
 
         {/* ── Section 2: Classification ───────────────────────────── */}
-        <div className="bg-white rounded border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6">
           <SectionHeader
             icon={WrenchScrewdriverIcon}
             title="Classification"
@@ -267,7 +264,7 @@ export default function RmForm() {
         </div>
 
         {/* ── Section 3: Stock Settings ───────────────────────────── */}
-        <div className="bg-white rounded border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6">
           <SectionHeader
             icon={ShieldExclamationIcon}
             title="Stock & Replenishment Settings"
@@ -318,12 +315,12 @@ export default function RmForm() {
         </div>
 
         {/* ── Form Actions ─────────────────────────────────────────── */}
-        <div className="bg-white rounded border border-slate-200 shadow-sm px-6 py-4 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm px-6 py-4 flex items-center justify-between">
           <div>
             {isEdit && (
               <button
                 type="button" onClick={handleDelete}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 rounded text-sm font-bold hover:bg-red-50 hover:border-red-300 transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 hover:border-red-300 transition-all cursor-pointer"
               >
                 <TrashIcon className="w-4 h-4" />
                 Deactivate
@@ -333,13 +330,13 @@ export default function RmForm() {
           <div className="flex gap-3">
             <button
               type="button" onClick={() => navigate('/rm-master')}
-              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded text-sm font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit" disabled={isSaving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-all cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 shadow-sm transition-all cursor-pointer disabled:opacity-60"
             >
               {isSaving
                 ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Saving...</>

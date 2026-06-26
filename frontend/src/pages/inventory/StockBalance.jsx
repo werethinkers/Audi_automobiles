@@ -15,8 +15,8 @@ import {
 } from '@heroicons/react/24/outline'
 
 const COLUMNS = [
-  { key: 'rm_name',     header: 'Material Name', render: v => <span className="font-bold text-[#2c3e50]">{v}</span> },
-  { key: 'rm_part_no',  header: 'Part No.',       render: v => v ? <span className="font-mono text-xs text-[#3498db] bg-[#3498db]/10 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'rm_name',     header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
+  { key: 'rm_part_no',  header: 'Part No.',       render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
   { key: 'store_name',  header: 'Store',           render: v => <span className="text-slate-600 flex items-center gap-1.5"><BuildingStorefrontIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0"/>{v}</span> },
   { key: 'uom',         header: 'UOM',             render: v => v || '—' },
   {
@@ -27,7 +27,7 @@ const COLUMNS = [
       const isOut = qty === 0
       const isLow = !isOut && min > 0 && qty < min
       return (
-        <span className={`font-black text-base ${isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-[#2c3e50]'}`}>
+        <span className={`font-black text-base ${isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-slate-800'}`}>
           {qty.toLocaleString()} <span className="text-xs font-medium text-slate-400">{row.uom}</span>
         </span>
       )
@@ -38,9 +38,9 @@ const COLUMNS = [
     render: (_, row) => {
       const qty = parseFloat(row.current_qty) || 0
       const min = parseFloat(row.min_stock) || 0
-      if (qty === 0)            return <span className="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-0.5 rounded">OUT</span>
-      if (min > 0 && qty < min) return <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded">LOW</span>
-      return <span className="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-0.5 rounded">OK</span>
+      if (qty === 0)            return <span className="bg-red-50 text-red-600 text-xs font-bold px-2.5 py-0.5 rounded-full">Out of Stock</span>
+      if (min > 0 && qty < min) return <span className="bg-amber-50 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded-full">Low Stock</span>
+      return <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-0.5 rounded-full">In Stock</span>
     }
   },
   {
@@ -54,7 +54,7 @@ const COLUMNS = [
         <div className="w-24">
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${pct === 0 ? 'bg-red-500' : pct < 50 ? 'bg-amber-500' : pct < 80 ? 'bg-yellow-400' : 'bg-green-500'}`}
+              className={`h-full rounded-full transition-all ${pct === 0 ? 'bg-red-500' : pct < 50 ? 'bg-amber-500' : pct < 80 ? 'bg-yellow-400' : 'bg-emerald-500'}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -103,9 +103,9 @@ export default function StockBalance() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Stock Balance"
+        title="Inventory Report"
         subtitle="Real-time inventory levels across all stores"
-        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Stock Balance' }]}
+        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Inventory Report' }]}
         actions={[{ label: '↓ Export', onClick: () => {}, icon: ArrowDownTrayIcon }]}
       />
 
@@ -116,12 +116,12 @@ export default function StockBalance() {
         <StatCard title="Out of Stock"  value={outOfStock} sub="Needs urgent restock"   icon={XCircleIcon}           color="red"   />
       </div>
 
-      <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-wrap gap-3">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 transition-all"
               placeholder="Search material or store..."
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -131,7 +131,7 @@ export default function StockBalance() {
             <BuildingStorefrontIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <select
               value={storeFilter} onChange={e => setStoreFilter(e.target.value)}
-              className="pl-9 pr-8 py-2 border border-slate-200 bg-white rounded text-sm outline-none focus:border-[#3498db] cursor-pointer text-slate-700"
+              className="pl-9 pr-8 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-green-500 cursor-pointer text-slate-700"
             >
               <option value="">All Stores</option>
               {stores?.map(s => <option key={s.store_id} value={s.store_id}>{s.store_name}</option>)}

@@ -18,21 +18,21 @@ const COLUMNS = [
   {
     key: 'icon', header: '',
     render: (_, row) => (
-      <div className="w-7 h-7 rounded bg-[#3498db]/10 flex items-center justify-center">
-        <CubeIcon className="w-3.5 h-3.5 text-[#3498db]" />
+      <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+        <CubeIcon className="w-4 h-4 text-green-600" />
       </div>
     )
   },
-  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-[#2c3e50]">{v}</span> },
-  { key: 'part_no', header: 'Part No.', render: v => v ? <span className="font-mono text-xs text-[#3498db] bg-[#3498db]/10 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
+  { key: 'part_no', header: 'Part No.', render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
   { key: 'unit_of_measurement', header: 'UOM', render: v => <span className="font-semibold text-slate-600">{v || '—'}</span> },
   { key: 'minimum_stock', header: 'Min Safety Stock', render: v => v ? <span className="font-mono text-sm font-bold text-slate-600">{v}</span> : <span className="text-slate-300">—</span> },
   { key: 'lead_time_days', header: 'Lead Time', render: v => v ? <span className="text-slate-600">{v} days</span> : <span className="text-slate-300">—</span> },
   {
     key: 'is_active', header: 'Status',
     render: v => (
-      <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded ${v ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-        {v ? '● Active' : '● Inactive'}
+      <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded-full ${v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+        {v ? 'Active' : 'Inactive'}
       </span>
     )
   },
@@ -87,25 +87,25 @@ export default function RmList() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
         {/* Filter bar */}
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center gap-3">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 transition-all"
               placeholder="Search by name or part no..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex rounded-lg overflow-hidden border border-slate-200 bg-white">
+          <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-white">
             {['all', 'active', 'inactive'].map(f => (
               <button
                 key={f}
                 onClick={() => setStatusFilter(f)}
                 className={`px-4 py-2 text-xs font-bold capitalize cursor-pointer transition-colors ${
-                  statusFilter === f ? 'bg-[#3498db] text-white' : 'text-slate-600 hover:bg-slate-50'
+                  statusFilter === f ? 'bg-green-600 text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}

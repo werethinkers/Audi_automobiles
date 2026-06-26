@@ -1,39 +1,39 @@
 // src/components/ui/StatCard.jsx
+// Vibrant gradient stat card — each color produces a distinct rich gradient
 export default function StatCard({ title, value, sub, icon: Icon, color = 'blue' }) {
-  const accentMap = {
-    blue:   'border-l-[#3498db]',
-    green:  'border-l-emerald-400',
-    amber:  'border-l-amber-400',
-    red:    'border-l-red-400',
-    purple: 'border-l-violet-400',
-    slate:  'border-l-slate-400',
-    gray:   'border-l-slate-400',
-  }
-  const iconBgMap = {
-    blue:   'bg-slate-100 text-[#3498db]',
-    green:  'bg-slate-100 text-emerald-600',
-    amber:  'bg-slate-100 text-amber-600',
-    red:    'bg-slate-100 text-red-500',
-    purple: 'bg-slate-100 text-violet-600',
-    slate:  'bg-slate-100 text-slate-500',
-    gray:   'bg-slate-100 text-slate-500',
+  const styleMap = {
+    blue:   { gradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'border-blue-300/30',   icon: 'bg-blue-700' },
+    green:  { gradient: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'border-green-300/30',  icon: 'bg-green-700' },
+    amber:  { gradient: 'linear-gradient(135deg, #d97706, #b45309)', border: 'border-amber-300/30',  icon: 'bg-amber-700' },
+    red:    { gradient: 'linear-gradient(135deg, #dc2626, #b91c1c)', border: 'border-red-300/30',    icon: 'bg-red-700' },
+    purple: { gradient: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'border-purple-300/30', icon: 'bg-purple-700' },
+    orange: { gradient: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'border-orange-300/30', icon: 'bg-orange-700' },
+    slate:  { gradient: 'linear-gradient(135deg, #475569, #334155)', border: 'border-slate-300/30',  icon: 'bg-slate-600' },
+    gray:   { gradient: 'linear-gradient(135deg, #475569, #334155)', border: 'border-slate-300/30',  icon: 'bg-slate-600' },
   }
 
+  const s = styleMap[color] || styleMap.blue
+
   return (
-    <div className={`
-      bg-white rounded-xl border border-slate-200 border-l-4 ${accentMap[color]}
-      shadow-sm p-5 flex items-start gap-4
-      hover:shadow-md transition-shadow duration-200
-    `}>
-      {Icon && (
-        <div className={`w-10 h-10 rounded-lg ${iconBgMap[color]} flex items-center justify-center flex-shrink-0`}>
-          <Icon className="w-5 h-5" />
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-        <p className="text-2xl font-black text-[#2c3e50] leading-tight">{value ?? '—'}</p>
-        {sub && <p className="text-xs font-medium mt-1 text-slate-400">{sub}</p>}
+    <div
+      className={`relative rounded-2xl p-5 overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border ${s.border}`}
+      style={{ background: s.gradient }}
+    >
+      {/* Decorative circles */}
+      <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
+      <div className="absolute -bottom-4 -right-2 w-12 h-12 rounded-full bg-white/10" />
+
+      <div className="relative flex items-start justify-between mb-4">
+        {Icon && (
+          <div className={`w-11 h-11 rounded-xl ${s.icon} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+        )}
+        <p className="text-3xl font-black text-white leading-none">{value ?? '—'}</p>
+      </div>
+      <div className="relative">
+        <p className="text-[11px] font-bold text-white/70 uppercase tracking-widest">{title}</p>
+        {sub && <p className="text-xs text-white/55 mt-0.5">{sub}</p>}
       </div>
     </div>
   )

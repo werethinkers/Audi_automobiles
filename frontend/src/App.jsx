@@ -20,6 +20,8 @@ import Ledger from './pages/inventory/Ledger'
 import Consumption from './pages/inventory/Consumption'
 import StationList from './pages/stations/StationList'
 import StationForm from './pages/stations/StationForm'
+import BomList from './pages/bom/BomList'
+import BomForm from './pages/bom/BomForm'
 
 import VendorLayout from './components/layout/VendorLayout'
 import VendorLogin from './pages/vendor-portal/VendorLogin'
@@ -89,6 +91,11 @@ export default function App() {
             <Route path="stations" element={<StationList />} />
             <Route path="/stations/new" element={<StationForm />} />
             <Route path="/stations/:id" element={<StationForm />} />
+
+            {/* Engineering / BOM */}
+            <Route path="bom" element={<BomList />} />
+            <Route path="bom/new" element={<BomForm />} />
+            <Route path="bom/:id" element={<BomForm />} />
 
             {/* Configuration */}
           </Route>

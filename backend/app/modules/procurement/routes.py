@@ -122,6 +122,65 @@ async def get_purchase_order(
     if not po:
         raise HTTPException(404, 'Purchase Order not found')
     return po
+
+@router.put('/purchase-orders/{po_id}', response_model=RmPurchaseOrderResponse)
+async def update_purchase_order(
+    po_id: UUID,
+    data: RmPurchaseOrderCreate,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_current_user)
+):
+    """
+    Update a Purchase Order by its ID.
+    Replaces existing line items with the provided ones.
+    """
+    stmt = (
+        select(RmPurchaseOrder)
+        .options(selectinload(RmPurchaseOrder.details))
+        .where(RmPurchaseOrder.po_id == po_id)
+    )
+    result = await db.execute(stmt)
+    po = result.scalar_one_or_none()
+    if not po:
+        raise HTTPException(404, 'Purchase Order not found')
+        
+    po.po_number = data.po_number
+    po.vendor_id = data.vendor_id
+    po.order_date = data.order_date
+    po.expected_delivery_date = data.expected_delivery_date
+    po.status_id = data.status_id
+    po.notes = data.notes
+
+    # Clear old details and create new ones
+    po.details.clear()
+    
+    total_amount = Decimal('0.0')
+    for detail_in in data.details:
+        qty = Decimal(str(detail_in.order_qty))
+        price = Decimal(str(detail_in.unit_price))
+        gst = Decimal(str(detail_in.gst_percent or 0))
+        line_amount = qty * price * (1 + gst / 100)
+        total_amount += line_amount
+        
+        detail = RmPoDetail(
+            rm_id=detail_in.rm_id,
+            order_qty=qty,
+            received_qty=Decimal('0.0'),
+            unit_price=price,
+            gst_percent=gst,
+            line_amount=line_amount,
+            line_status='OPEN'
+        )
+        po.details.append(detail)
+        
+    po.total_amount = total_amount
+    try:
+        await db.flush()
+    except Exception as e:
+        raise HTTPException(400, f'Failed to update PO: {str(e)}')
+    
+    await db.refresh(po)
+    return po
  
 @router.put('/purchase-orders/{po_id}/status', response_model=RmPurchaseOrderResponse)
 async def update_po_status(
@@ -193,6 +252,26 @@ async def list_grn(
     result = await db.execute(stmt)
     return list(result.scalars().all())
  
+@router.get('/grn/{grn_id}', response_model=RmReceivingLogResponse)
+async def get_grn(
+    grn_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_current_user)
+):
+    """
+    Fetch a single Goods Receipt Note (GRN) by its ID.
+    """
+    stmt = (
+        select(RmReceivingLog)
+        .options(selectinload(RmReceivingLog.details))
+        .where(RmReceivingLog.grn_id == grn_id)
+    )
+    result = await db.execute(stmt)
+    grn = result.scalar_one_or_none()
+    if not grn:
+        raise HTTPException(404, 'GRN not found')
+    return grn
+ 
 @router.post('/grn', response_model=RmReceivingLogResponse, status_code=201)
 async def create_grn(
     data: RmReceivingLogCreate,
@@ -262,6 +341,108 @@ async def create_grn(
     )
     result = await db.execute(stmt)
     grn = result.scalar_one()
+    return grn
+
+@router.put('/grn/{grn_id}', response_model=RmReceivingLogResponse)
+async def update_grn(
+    grn_id: UUID,
+    data: RmReceivingLogCreate,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(get_current_user)
+):
+    """
+    Update an existing Goods Receipt Note (GRN).
+    Adjusts inventory and PO line statuses based on delta quantities.
+    """
+    stmt = (
+        select(RmReceivingLog)
+        .options(selectinload(RmReceivingLog.details))
+        .where(RmReceivingLog.grn_id == grn_id)
+    )
+    result = await db.execute(stmt)
+    grn = result.scalar_one_or_none()
+    if not grn:
+        raise HTTPException(404, 'GRN not found')
+        
+    grn.grn_number = data.grn_number
+    grn.po_id = data.po_id
+    grn.vendor_id = data.vendor_id
+    grn.received_date = data.received_date
+    grn.vehicle_number = data.vehicle_number
+    grn.dc_number = data.dc_number
+    grn.grn_status = data.grn_status or 'PENDING_QA'
+    grn.remarks = data.remarks
+    
+    inv_service = InventoryService(db)
+    
+    old_details_map = {d.po_detail_id: d for d in grn.details}
+    
+    for detail_in in data.details:
+        rec_qty = Decimal(str(detail_in.received_qty))
+        acc_qty = Decimal(str(detail_in.accepted_qty)) if detail_in.accepted_qty is not None else rec_qty
+        rej_qty = Decimal(str(detail_in.rejected_qty or 0.0))
+        
+        old_detail = old_details_map.get(detail_in.po_detail_id)
+        if old_detail:
+            diff_acc = acc_qty - (old_detail.accepted_qty or Decimal('0.0'))
+            
+            old_detail.received_qty = rec_qty
+            old_detail.accepted_qty = acc_qty
+            old_detail.rejected_qty = rej_qty
+            old_detail.rejection_reason = detail_in.rejection_reason
+            old_detail.store_id = detail_in.store_id
+            
+            if diff_acc != 0:
+                await inv_service.post_transaction(
+                    rm_id=detail_in.rm_id,
+                    store_id=detail_in.store_id,
+                    qty=diff_acc,
+                    transaction_type='GRN_ADJUSTMENT',
+                    reference_type='GRN', reference_id=grn.grn_id
+                )
+                
+                po_detail = await db.get(RmPoDetail, detail_in.po_detail_id)
+                if po_detail:
+                    po_detail.received_qty = (po_detail.received_qty or Decimal('0.0')) + diff_acc
+                    if po_detail.received_qty >= po_detail.order_qty:
+                        po_detail.line_status = 'COMPLETED'
+                    else:
+                        po_detail.line_status = 'PARTIALLY_RECEIVED'
+        else:
+            detail = GrnDetail(
+                grn_id=grn.grn_id,
+                po_detail_id=detail_in.po_detail_id,
+                rm_id=detail_in.rm_id,
+                received_qty=rec_qty,
+                accepted_qty=acc_qty,
+                rejected_qty=rej_qty,
+                rejection_reason=detail_in.rejection_reason,
+                store_id=detail_in.store_id
+            )
+            db.add(detail)
+            
+            if acc_qty > 0:
+                await inv_service.grn_post(
+                    rm_id=detail_in.rm_id,
+                    store_id=detail_in.store_id,
+                    accepted_qty=acc_qty,
+                    grn_id=grn.grn_id
+                )
+                
+                po_detail = await db.get(RmPoDetail, detail_in.po_detail_id)
+                if po_detail:
+                    po_detail.received_qty = (po_detail.received_qty or Decimal('0.0')) + acc_qty
+                    if po_detail.received_qty >= po_detail.order_qty:
+                        po_detail.line_status = 'COMPLETED'
+                    else:
+                        po_detail.line_status = 'PARTIALLY_RECEIVED'
+
+    try:
+        await db.flush()
+    except Exception as e:
+        raise HTTPException(400, f'Failed to update GRN: {str(e)}')
+        
+    await db.refresh(grn)
     return grn
 
 @router.delete('/grn/{grn_id}', status_code=204)

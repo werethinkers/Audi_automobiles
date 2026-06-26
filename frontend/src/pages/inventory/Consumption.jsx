@@ -19,12 +19,12 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/24/outline'
 
-const inputCls = "w-full px-3.5 py-2.5 border border-slate-200 rounded outline-none focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/10 text-sm text-[#2c3e50] transition-all bg-white"
+const inputCls = "w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 text-sm text-slate-800 transition-all bg-white"
 
 function Field({ label, required, hint, children }) {
   return (
     <div>
-      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
@@ -66,31 +66,31 @@ export default function Consumption() {
     }
     try {
       await consumeMutation.mutateAsync({ rm_id: rmId, store_id: storeId, qty: qtyNum, consumed_date: consumedDate, description: description || null, remarks: remarks || null })
-      toast.success('Material issued successfully!')
+      toast.success('Consumption confirmed successfully!')
       setQty(''); setDescription(''); setRemarks('')
       refetchBalance()
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to issue material')
+      toast.error(err.response?.data?.detail || 'Failed to record consumption')
     }
   }
 
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Issue Material"
+        title="Confirm Consumption"
         subtitle="Record manual material consumption from a store"
-        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Issue Material' }]}
+        breadcrumb={[{ label: 'Inventory', href: '/dashboard' }, { label: 'Confirm Consumption' }]}
         actions={[{ label: 'Back', onClick: () => navigate('/stock-balance'), icon: ArrowLeftIcon }]}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
         {/* Form */}
-        <div className="lg:col-span-2 bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
-          <div className="bg-[#2c3e50] text-white px-5 py-3 flex items-center gap-2">
-            <InboxArrowDownIcon className="w-5 h-5 text-amber-400" />
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+          <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center gap-2">
+            <InboxArrowDownIcon className="w-5 h-5 text-green-500" />
             <div>
-              <p className="text-sm font-bold uppercase tracking-wide">Issue Details</p>
-              <p className="text-xs text-slate-400">Select source, material and specify quantity</p>
+              <p className="text-sm font-bold uppercase tracking-wide">Consumption Details</p>
+              <p className="text-xs text-slate-400">Select source store, material and specify quantity consumed</p>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default function Consumption() {
                 </div>
               </Field>
 
-              <Field label="Quantity to Issue" required hint={selectedRm ? `Unit: ${selectedRm.unit_of_measurement}` : undefined}>
+              <Field label="Quantity Consumed" required hint={selectedRm ? `Unit: ${selectedRm.unit_of_measurement}` : undefined}>
                 <div className="relative">
                   <HashtagIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
@@ -133,7 +133,7 @@ export default function Consumption() {
                 )}
               </Field>
 
-              <Field label="Issue Date" required>
+              <Field label="Consumption Date" required>
                 <div className="relative">
                   <CalendarDaysIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input type="date" required value={consumedDate} onChange={e => setConsumedDate(e.target.value)} className={inputCls + " pl-9"} />
@@ -143,7 +143,7 @@ export default function Consumption() {
               <Field label="Purpose / Description" hint="e.g. Production Line A, Prototype Testing">
                 <div className="relative">
                   <DocumentTextIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="What is this material used for?" className={inputCls + " pl-9"} />
+                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="What was this material used for?" className={inputCls + " pl-9"} />
                 </div>
               </Field>
 
@@ -156,16 +156,16 @@ export default function Consumption() {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <button type="button" onClick={() => navigate('/stock-balance')} className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded text-sm font-bold hover:bg-slate-50 transition-colors cursor-pointer">
+              <button type="button" onClick={() => navigate('/stock-balance')} className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors cursor-pointer">
                 Cancel
               </button>
               <button
                 type="submit" disabled={consumeMutation.isPending || isOverDraw}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#3498db] hover:bg-[#2980b9] text-white rounded text-sm font-bold shadow-sm transition-all cursor-pointer disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer disabled:opacity-60"
               >
                 {consumeMutation.isPending
                   ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Processing...</>
-                  : <><CheckIcon className="w-4 h-4" /> Issue Stock</>
+                  : <><CheckIcon className="w-4 h-4" /> Confirm Consumption</>
                 }
               </button>
             </div>
@@ -174,9 +174,9 @@ export default function Consumption() {
 
         {/* Live Preview Panel */}
         <div className="space-y-4">
-          <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-[#2c3e50] text-white px-4 py-3 flex items-center gap-2">
-              <InformationCircleIcon className="w-4 h-4 text-[#3498db]" />
+          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+            <div className="bg-slate-900 text-white px-4 py-3 flex items-center gap-2">
+              <InformationCircleIcon className="w-4 h-4 text-green-500" />
               <span className="text-sm font-bold uppercase tracking-wide">Live Stock Preview</span>
             </div>
 
@@ -185,13 +185,13 @@ export default function Consumption() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Material</p>
-                    <p className="text-sm font-bold text-[#2c3e50]">{selectedRm?.name}</p>
-                    {selectedRm?.part_no && <span className="font-mono text-xs text-[#3498db] bg-[#3498db]/10 px-2 py-0.5 rounded mt-1 inline-block">{selectedRm.part_no}</span>}
+                    <p className="text-sm font-bold text-slate-800">{selectedRm?.name}</p>
+                    {selectedRm?.part_no && <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded mt-1 inline-block">{selectedRm.part_no}</span>}
                   </div>
 
                   <div className="border-t border-slate-100 pt-4">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Available Stock</p>
-                    <p className={`text-3xl font-black ${avail === 0 ? 'text-red-600' : 'text-[#2c3e50]'}`}>
+                    <p className={`text-3xl font-black ${avail === 0 ? 'text-red-600' : 'text-slate-800'}`}>
                       {avail !== null ? avail.toLocaleString() : '—'}
                       <span className="text-sm font-semibold text-slate-400 ml-2">{selectedRm?.unit_of_measurement}</span>
                     </p>
@@ -200,18 +200,18 @@ export default function Consumption() {
                   {qtyNum > 0 && avail !== null && avail > 0 && (
                     <div className="border-t border-slate-100 pt-4">
                       <div className="flex justify-between text-xs text-slate-500 mb-2">
-                        <span>Issue amount</span>
-                        <span className={`font-bold ${isOverDraw ? 'text-red-500' : 'text-[#3498db]'}`}>{ratio.toFixed(0)}% of available</span>
+                        <span>Consumption amount</span>
+                        <span className={`font-bold ${isOverDraw ? 'text-red-500' : 'text-green-600'}`}>{ratio.toFixed(0)}% of available</span>
                       </div>
                       <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-300 ${isOverDraw ? 'bg-red-500' : ratio > 75 ? 'bg-amber-500' : 'bg-[#3498db]'}`}
+                          className={`h-full rounded-full transition-all duration-300 ${isOverDraw ? 'bg-red-500' : ratio > 75 ? 'bg-amber-500' : 'bg-green-600'}`}
                           style={{ width: `${Math.min(100, ratio)}%` }}
                         />
                       </div>
                       <div className="flex justify-between text-xs text-slate-400 mt-1.5">
-                        <span>Remaining after issue:</span>
-                        <span className={`font-bold ${isOverDraw ? 'text-red-500' : 'text-green-600'}`}>
+                        <span>Remaining after consumption:</span>
+                        <span className={`font-bold ${isOverDraw ? 'text-red-500' : 'text-emerald-600'}`}>
                           {isOverDraw ? 'Insufficient!' : `${(avail - qtyNum).toLocaleString()} ${selectedRm?.unit_of_measurement}`}
                         </span>
                       </div>
@@ -219,7 +219,7 @@ export default function Consumption() {
                   )}
 
                   {avail === 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded">
+                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200/60 rounded-xl">
                       <ShieldExclamationIcon className="w-4 h-4 text-red-500 flex-shrink-0" />
                       <p className="text-xs font-bold text-red-700">No stock available in this store</p>
                     </div>
@@ -234,14 +234,14 @@ export default function Consumption() {
             </div>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded p-4">
+          <div className="bg-amber-50/50 border border-amber-200/60 rounded-xl p-4">
             <p className="text-xs font-bold text-amber-800 mb-2 flex items-center gap-1.5">
-              <ShieldExclamationIcon className="w-4 h-4" /> Guidelines
+              <ShieldExclamationIcon className="w-4 h-4 text-amber-600" /> Guidelines
             </p>
             <ul className="text-xs text-amber-700 space-y-1 list-disc list-inside">
               <li>Ensure quantity is within available stock</li>
               <li>Record a purpose for better traceability</li>
-              <li>Every issue is logged in the stock ledger</li>
+              <li>Every consumption entry is logged in the ledger</li>
             </ul>
           </div>
         </div>
