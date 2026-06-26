@@ -41,3 +41,13 @@ export const useDeleteVendor = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
   })
 }
+
+export const useUpdateVendorAccess = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/admin/vendor-portal/vendor-access', data).then(r => r.data),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: KEYS.detail(variables.vendor_id) })
+    },
+  })
+}
