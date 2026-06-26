@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useVendorDetail, useCreateVendor, useUpdateVendor, useDeleteVendor } from '../../api/vendor'
+import { useVendorDetail, useCreateVendor, useUpdateVendor, useDeleteVendor, useUpdateVendorAccess } from '../../api/vendor'
 import PageHeader from '../../components/ui/PageHeader'
 import { toast } from 'react-hot-toast'
  
@@ -19,12 +19,18 @@ export default function VendorForm() {
   const [state, setState] = useState('')
   const [paymentTerms, setPaymentTerms] = useState('')
   const [isActive, setIsActive] = useState(true)
+
+  // Portal Access State
+  const [portalEnabled, setPortalEnabled] = useState(false)
+  const [portalUsername, setPortalUsername] = useState('')
+  const [portalPassword, setPortalPassword] = useState('')
  
   const { data: vendor, isLoading: detailLoading } = useVendorDetail(id)
   
   const createMutation = useCreateVendor()
   const updateMutation = useUpdateVendor()
   const deleteMutation = useDeleteVendor()
+  const accessMutation = useUpdateVendorAccess()
  
   useEffect(() => {
     if (isEdit && vendor) {
@@ -38,6 +44,8 @@ export default function VendorForm() {
       setState(vendor.state || '')
       setPaymentTerms(vendor.payment_terms || '')
       setIsActive(vendor.is_active ?? true)
+      setPortalEnabled(vendor.portal_enabled || false)
+      setPortalUsername(vendor.portal_username || '')
     }
   }, [isEdit, vendor])
  
@@ -58,6 +66,13 @@ export default function VendorForm() {
     try {
       if (isEdit) {
         await updateMutation.mutateAsync({ id, ...payload, is_active: isActive })
+        // Save portal access
+        await accessMutation.mutateAsync({
+          vendor_id: id,
+          portal_enabled: portalEnabled,
+          portal_username: portalUsername || null,
+          portal_password: portalPassword || null
+        })
         toast.success('Vendor details updated successfully!')
       } else {
         await createMutation.mutateAsync(payload)
@@ -177,7 +192,37 @@ export default function VendorForm() {
             )}
           </div>
         </div>
-  
+        {isEdit && (
+          <div className="border-t border-slate-100 pt-6 mt-6">
+            <h3 className="text-sm font-bold text-slate-800 mb-4">Vendor Portal Access</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox" id="portalEnabled" checked={portalEnabled} onChange={e => setPortalEnabled(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                />
+                <label htmlFor="portalEnabled" className="text-sm font-semibold text-slate-600">Enable Portal Access</label>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Portal Username</label>
+                <input
+                  type="text" value={portalUsername} onChange={e => setPortalUsername(e.target.value)} disabled={!portalEnabled}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm disabled:bg-slate-50"
+                  placeholder="e.g. mobile or email"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Set/Reset Password</label>
+                <input
+                  type="password" value={portalPassword} onChange={e => setPortalPassword(e.target.value)} disabled={!portalEnabled}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm disabled:bg-slate-50"
+                  placeholder="Leave blank to keep unchanged"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-between items-center border-t border-slate-100 pt-6">
           <div>
             {isEdit && (
@@ -198,9 +243,10 @@ export default function VendorForm() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+              disabled={updateMutation.isPending || createMutation.isPending || accessMutation.isPending}
             >
-              Save Changes
+              {(updateMutation.isPending || createMutation.isPending || accessMutation.isPending) ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>

@@ -23,6 +23,14 @@ import StationForm from './pages/stations/StationForm'
 import BomList from './pages/bom/BomList'
 import BomForm from './pages/bom/BomForm'
 
+import VendorLayout from './components/layout/VendorLayout'
+import VendorLogin from './pages/vendor-portal/VendorLogin'
+import VendorDashboard from './pages/vendor-portal/VendorDashboard'
+import VendorPOList from './pages/vendor-portal/POList'
+import ASNWizard from './pages/vendor-portal/ASNWizard'
+import ActiveShipments from './pages/vendor-portal/ActiveShipments'
+import RejectionsNCRs from './pages/vendor-portal/RejectionsNCRs'
+
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1 } } })
  
 export default function App() {
@@ -30,10 +38,23 @@ export default function App() {
     <QueryClientProvider client={qc}>
       <BrowserRouter>
         <Routes>
-          {/* Public Login Route */}
+          {/* Vendor Portal Public Route */}
+          <Route path="/vendor-portal/login" element={<VendorLogin />} />
+          
+          {/* Vendor Portal Private Routes */}
+          <Route path="/vendor-portal" element={<VendorLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<VendorDashboard />} />
+            <Route path="purchase-orders" element={<VendorPOList />} />
+            <Route path="asns/new" element={<ASNWizard />} />
+            <Route path="active-shipments" element={<ActiveShipments />} />
+            <Route path="rejections" element={<RejectionsNCRs />} />
+          </Route>
+
+          {/* Public Login Route (Internal Staff) */}
           <Route path="/login" element={<Login />} />
           
-          {/* Private Authenticated Routes */}
+          {/* Private Authenticated Routes (Internal Staff) */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
