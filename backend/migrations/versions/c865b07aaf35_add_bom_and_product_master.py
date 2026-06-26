@@ -56,9 +56,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['rm_id'], ['rm_master.rm_id'], ),
     sa.PrimaryKeyConstraint('bom_detail_id')
     )
-    op.drop_index('ix_ecfv_entity', table_name='entity_custom_field_values')
-    op.drop_table('entity_custom_field_values')
-    op.drop_table('entity_custom_fields')
+    # op.drop_index('ix_ecfv_entity', table_name='entity_custom_field_values')
+    # op.drop_table('entity_custom_field_values')
+    # op.drop_table('entity_custom_fields')
     # ### end Alembic commands ###
 
 
