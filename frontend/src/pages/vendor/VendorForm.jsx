@@ -243,12 +243,8 @@ export default function VendorForm() {
             </button>
             <button
               type="submit"
-<<<<<<< HEAD
-              className="px-4 py-2 bg-[#3498db] text-white rounded text-sm font-bold hover:bg-[#2980b9] shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
               disabled={updateMutation.isPending || createMutation.isPending || accessMutation.isPending}
-=======
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors cursor-pointer"
->>>>>>> 7c7e326adede02a12a29434f6ee3075a5493db97
             >
               {(updateMutation.isPending || createMutation.isPending || accessMutation.isPending) ? 'Saving...' : 'Save Changes'}
             </button>
