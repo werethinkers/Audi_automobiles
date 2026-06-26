@@ -73,7 +73,7 @@ export default function PageHeader({ title, subtitle, breadcrumb = [], backHref,
       </div>
 
       {actions.length > 0 && (
-        <div className="flex flex-wrap gap-2.5 flex-shrink-0 md:mt-0.5">
+        <div className="flex flex-wrap gap-2 flex-shrink-0 md:mt-0.5">
           {actions.map((act, index) => {
             const primaryCls = primaryColorMap[act.color || 'blue'] || primaryColorMap.blue
             return (
@@ -81,8 +81,8 @@ export default function PageHeader({ title, subtitle, breadcrumb = [], backHref,
                 key={index}
                 onClick={act.onClick}
                 className={`
-                  inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg shadow-sm
-                  transition-all duration-150 cursor-pointer
+                  inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl shadow-sm
+                  transition-all duration-150 cursor-pointer w-full sm:w-auto
                   ${act.primary
                     ? `${primaryCls} text-white`
                     : act.danger

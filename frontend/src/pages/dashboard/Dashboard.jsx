@@ -116,23 +116,23 @@ export default function Dashboard() {
         <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-white/5 -translate-y-1/3 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full bg-white/5 translate-y-1/3 -translate-x-1/4" />
         <div className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full bg-blue-400/10" />
-        <div className="relative px-8 py-7 flex items-center justify-between">
+        <div className="relative px-5 py-5 sm:px-8 sm:py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               <span className="text-blue-200 text-xs font-semibold tracking-wide uppercase">All Systems Operational</span>
             </div>
-            <h1 className="text-3xl font-black text-white leading-tight">Good day, Admin 👋</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">Good day, Admin 👋</h1>
             <p className="text-blue-200 text-sm mt-1 font-medium">{today}</p>
           </div>
-          <div className="hidden sm:flex gap-3">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-5 py-3 text-center">
+          <div className="flex gap-3">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 sm:px-5 sm:py-3 text-center">
               <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider">Total Materials</p>
-              <p className="text-white text-3xl font-black mt-0.5">{isLoading ? '—' : totalRms}</p>
+              <p className="text-white text-2xl sm:text-3xl font-black mt-0.5">{isLoading ? '—' : totalRms}</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-5 py-3 text-center">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 sm:px-5 sm:py-3 text-center">
               <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider">Open POs</p>
-              <p className="text-white text-3xl font-black mt-0.5">{isLoading ? '—' : pendingPos}</p>
+              <p className="text-white text-2xl sm:text-3xl font-black mt-0.5">{isLoading ? '—' : pendingPos}</p>
             </div>
           </div>
         </div>

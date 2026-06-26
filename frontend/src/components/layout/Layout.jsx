@@ -294,17 +294,17 @@ export default function Layout() {
 
         {/* ── Page Content ───────────────────────────────────── */}
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-[1400px] mx-auto px-6 py-6">
+          <div className="max-w-[1400px] mx-auto px-3 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
             <Outlet />
           </div>
         </main>
 
         {/* ── Footer ─────────────────────────────────────────── */}
-        <footer className="flex-shrink-0 bg-white border-t border-slate-100 px-6 py-2.5 flex items-center justify-between">
-          <p className="text-[11px] text-slate-400">
+        <footer className="flex-shrink-0 bg-white border-t border-slate-100 px-3 py-2 sm:px-6 sm:py-2.5 flex items-center justify-between">
+          <p className="text-[10px] sm:text-[11px] text-slate-400">
             © 2025–2026 <span className="font-semibold text-slate-500">Audi Automobiles</span>
           </p>
-          <p className="text-[11px] text-slate-400">
+          <p className="hidden sm:block text-[11px] text-slate-400">
             Powered by <span className="font-bold text-slate-600">astute</span><span className="font-bold" style={{ color: '#f59e0b' }}>BRIDGE</span>
             <span className="text-slate-300 mx-1">·</span>v1.0.0
           </p>
