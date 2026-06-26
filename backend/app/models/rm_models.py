@@ -70,6 +70,7 @@ class VendorMaster(Base):
     """
     __tablename__ = 'vendor_master'
     vendor_id      = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    vendor_code    = Column(String(50), unique=True)
     name           = Column(String(255), nullable=False)
     contact_person = Column(String(150))
     phone          = Column(String(20))
@@ -80,6 +81,9 @@ class VendorMaster(Base):
     city           = Column(String(100))
     state          = Column(String(100))
     payment_terms  = Column(String(100))
+    portal_enabled = Column(Boolean, nullable=False, default=False)
+    portal_username = Column(String(100), unique=True)
+    portal_password_hash = Column(String(255))
     is_active      = Column(Boolean, nullable=False, default=True)
     created_at     = Column(DateTime(timezone=True), default=now_utc)
     updated_at     = Column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)

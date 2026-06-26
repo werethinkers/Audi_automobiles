@@ -36,6 +36,10 @@ app.add_middleware(
  
 # ── ROUTE REGISTRATION ────────────────────────────────
 # Mount all domain routers under the /api/v1 prefix to support versioning.
+from app.modules.vendor_portal.routes import router as vendor_portal_router
+
+from app.modules.vendor_portal_admin.routes import router as vendor_portal_admin_router
+
 app.include_router(auth_router,        prefix='/api/v1/auth',            tags=['Authentication'])
 app.include_router(rm_router,          prefix='/api/v1/rm-master',      tags=['RM Master'])
 app.include_router(vendor_router,      prefix='/api/v1/vendors',         tags=['Vendors'])
@@ -44,6 +48,8 @@ app.include_router(station_router,     prefix='/api/v1/stations',        tags=['
 app.include_router(procurement_router, prefix='/api/v1/procurement',     tags=['Procurement'])
 app.include_router(inventory_router,   prefix='/api/v1/inventory',       tags=['Inventory'])
 app.include_router(bom_router,         prefix='/api/v1/bom',             tags=['BOM'])
+app.include_router(vendor_portal_router, prefix='/api/v1/portal',        tags=['Vendor Portal'])
+app.include_router(vendor_portal_admin_router, prefix='/api/v1/admin/vendor-portal', tags=['Admin Vendor Portal'])
 
 @app.get('/health')
 async def health():

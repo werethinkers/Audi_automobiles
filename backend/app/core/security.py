@@ -1,25 +1,25 @@
 # app/core/security.py
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
  
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 bearer_scheme = HTTPBearer()
  
 def hash_password(password: str) -> str:
     """
     Hashes a plain text password using bcrypt before storing it in the database.
     """
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
  
 def verify_password(plain: str, hashed: str) -> bool:
     """
     Verifies a plain text password against its bcrypt hashed version during login.
     """
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
  
 def create_access_token(data: dict) -> str:
     """

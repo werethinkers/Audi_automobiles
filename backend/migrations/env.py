@@ -19,6 +19,8 @@ load_dotenv(os.path.join(parent_dir, ".env"))
 # 3. Import Base and models so they are registered on Base.metadata
 from app.core.database import Base
 from app.models import rm_models  # Imports all models
+from app.models import core_models
+from app.models import vendor_portal
 from app.models import bom_models
 
 # this is the Alembic Config object, which provides

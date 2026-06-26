@@ -25,6 +25,7 @@ async def list_procurement_sources(db: AsyncSession = Depends(get_db)):
 async def list_rm(
     skip: int = 0, limit: Optional[int] = None,
     is_active: Optional[str] = None,
+    vendor_id: Optional[UUID] = None,
     db: AsyncSession = Depends(get_db),
     _=Depends(get_current_user)
 ):
@@ -32,6 +33,9 @@ async def list_rm(
     if is_active is not None and is_active.lower() not in ('null', 'none', ''):
         active_val = is_active.lower() in ('true', '1', 'yes')
         stmt = stmt.where(RmMaster.is_active == active_val)
+    if vendor_id is not None:
+        from app.models.rm_models import RmVendorMapping
+        stmt = stmt.join(RmVendorMapping, RmMaster.rm_id == RmVendorMapping.rm_id).where(RmVendorMapping.vendor_id == vendor_id)
     if skip > 0:
         stmt = stmt.offset(skip)
     if limit is not None:

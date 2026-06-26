@@ -22,6 +22,8 @@ function StatusBadge({ statusCode }) {
     PENDING_APPROVAL:   { label: 'Pending Approval',  cls: 'bg-amber-50 text-amber-700' },
     BLOCKED:            { label: 'Blocked',           cls: 'bg-red-50 text-red-700'     },
     RELEASED:           { label: 'Released',          cls: 'bg-blue-50 text-blue-700' },
+    ACKNOWLEDGED:       { label: 'Acknowledged',      cls: 'bg-indigo-50 text-indigo-700' },
+    IN_TRANSIT:         { label: 'In Transit',        cls: 'bg-cyan-50 text-cyan-700' },
     PARTIALLY_RECEIVED: { label: 'Partial GRN',       cls: 'bg-purple-50 text-purple-700' },
     COMPLETED:          { label: 'Completed',         cls: 'bg-emerald-50 text-emerald-700' },
   }
@@ -52,7 +54,10 @@ export default function PoList() {
 
   const total    = pos?.length || 0
   const pending  = pos?.filter(p => { const s = getStatus(p.status_id); return s?.code === 'PENDING_APPROVAL' }).length || 0
-  const released = pos?.filter(p => { const s = getStatus(p.status_id); return s?.code === 'RELEASED' || s?.code === 'PARTIALLY_RECEIVED' }).length || 0
+  const released = pos?.filter(p => { 
+    const s = getStatus(p.status_id); 
+    return s?.code === 'RELEASED' || s?.code === 'ACKNOWLEDGED' || s?.code === 'IN_TRANSIT' || s?.code === 'PARTIALLY_RECEIVED' 
+  }).length || 0
   const done     = pos?.filter(p => { const s = getStatus(p.status_id); return s?.code === 'COMPLETED' }).length || 0
 
   const COLUMNS = [

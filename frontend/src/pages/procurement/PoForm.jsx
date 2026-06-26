@@ -18,7 +18,8 @@ export default function PoForm() {
   const { data: po, isLoading: poLoading } = usePoDetail(id)
   
   const { data: vendors } = useVendorList({ is_active: true })
-  const { data: rms } = useRmList({ is_active: true })
+  const [vendorId, setVendorId] = useState('')
+  const { data: rms } = useRmList({ is_active: true, ...(vendorId && { vendor_id: vendorId }) })
  
   // Fetch PO statuses
   const { data: statuses } = useQuery({
@@ -28,7 +29,6 @@ export default function PoForm() {
  
   // Form Header State
   const [poNumber, setPoNumber] = useState('')
-  const [vendorId, setVendorId] = useState('')
   const [orderDate, setOrderDate] = useState(new Date().toISOString().split('T')[0])
   const [expectedDate, setExpectedDate] = useState('')
   const [notes, setNotes] = useState('')
