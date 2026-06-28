@@ -19,10 +19,10 @@ async def main():
     SessionLocal = sessionmaker(engine, class_=AsyncSession)
     
     async with SessionLocal() as db:
-        # Import RmMaster dynamically or just execute RAW SQL to avoid model dependency issues
-        from app.models.rm_models import RmVendorMaster
+        # Import VendorMaster dynamically or just execute RAW SQL to avoid model dependency issues
+        from app.models.rm_models import VendorMaster
         
-        result = await db.execute(select(RmVendorMaster))
+        result = await db.execute(select(VendorMaster))
         vendors = result.scalars().all()
         
         updated = 0

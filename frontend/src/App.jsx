@@ -8,6 +8,7 @@ import Diagnostics from './pages/Diagnostics'
 import RmList from './pages/rm/RmList'
 import RmForm from './pages/rm/RmForm'
 import VendorList from './pages/vendor/VendorList'
+import VendorProfile from './pages/vendor/VendorProfile'
 import VendorForm from './pages/vendor/VendorForm'
 import StoreList from './pages/store/StoreList'
 import StoreForm from './pages/store/StoreForm'
@@ -67,7 +68,8 @@ export default function App() {
             
             <Route path="vendors" element={<VendorList />} />
             <Route path="vendors/new" element={<VendorForm />} />
-            <Route path="vendors/:id" element={<VendorForm />} />
+            <Route path="vendors/:id" element={<VendorProfile />} />
+            <Route path="vendors/:id/edit" element={<VendorForm />} />
             
             <Route path="stores" element={<StoreList />} />
             <Route path="stores/new" element={<StoreForm />} />

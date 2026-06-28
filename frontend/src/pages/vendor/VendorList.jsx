@@ -71,7 +71,7 @@ export default function VendorList() {
           data={filtered}
           loading={isLoading}
           onRowClick={row => navigate(`/vendors/${row.vendor_id}`)}
-          onEdit={row => navigate(`/vendors/${row.vendor_id}`)}
+          onEdit={row => navigate(`/vendors/${row.vendor_id}/edit`)}
           onDelete={row => setDeleteTarget(row)}
         />
       </div>
