@@ -146,19 +146,13 @@ export default function Layout() {
         style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8faff 100%)' }}
       >
         {/* ── Brand / Logo ──────────────────────────────────── */}
-        <div className={`h-16 flex items-center border-b border-slate-100 flex-shrink-0
-          ${collapsed ? 'justify-center px-0' : 'px-4 gap-3'}`}
+        <div className={`h-24 flex items-center border-b border-slate-100 flex-shrink-0
+          ${collapsed ? 'justify-center px-0' : 'px-6'}`}
         >
-          {/* Client logo — Audi Automobiles */}
-          <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <span className="text-white font-black text-[13px] tracking-tighter" style={{ fontFamily: 'serif' }}>AA</span>
+          {/* Client logo — Bhagirath */}
+          <div className="flex items-center justify-start flex-shrink-0 w-full">
+            <img src="/Bhagirath_logo.png" alt="Bhagirath Logo" className="h-16 w-auto object-contain drop-shadow-md" />
           </div>
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-slate-900 text-[13px] font-bold leading-tight truncate">Audi Automobiles</p>
-              <p className="text-slate-400 text-[10px] font-medium tracking-[0.08em] uppercase truncate">Manufacturing ERP</p>
-            </div>
-          )}
         </div>
 
         {/* ── Navigation ────────────────────────────────────── */}
@@ -247,7 +241,7 @@ export default function Layout() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* ── Top Header Bar ──────────────────────────────────── */}
-        <header className="h-16 flex-shrink-0 bg-white border-b border-slate-200/80 shadow-sm flex items-center gap-4 px-5">
+        <header className="h-24 flex-shrink-0 bg-white border-b border-slate-200/80 shadow-sm flex items-center gap-5 px-6">
 
           {/* Collapse toggle (desktop) */}
           <button
@@ -267,7 +261,7 @@ export default function Layout() {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm flex-1 min-w-0">
-            <span className="text-slate-400 text-xs hidden sm:block">Audi Automobiles ERP</span>
+            <span className="text-slate-400 text-xs hidden sm:block">Bhagirath ERP</span>
             {currentPage && (
               <>
                 <ChevronRightIcon className="w-3 h-3 text-slate-300 hidden sm:block flex-shrink-0" />
@@ -276,8 +270,12 @@ export default function Layout() {
             )}
           </div>
 
-          {/* Right: Notifications + User */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Right: Notifications, User, and Astute Bridge Logo */}
+          <div className="flex items-center gap-6 flex-shrink-0">
+            <div className="hidden sm:flex items-center justify-center h-20 pr-3">
+              <img src="/Astute_Bridge_Logo.png" alt="Astute Bridge" className="h-20 w-auto object-contain drop-shadow-md" />
+            </div>
+            <div className="h-5 w-px bg-slate-200" />
             <button className="relative w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer">
               <BellIcon className="w-[18px] h-[18px]" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-amber-400 rounded-full" />
@@ -302,7 +300,7 @@ export default function Layout() {
         {/* ── Footer ─────────────────────────────────────────── */}
         <footer className="flex-shrink-0 bg-white border-t border-slate-100 px-3 py-2 sm:px-6 sm:py-2.5 flex items-center justify-between">
           <p className="text-[10px] sm:text-[11px] text-slate-400">
-            © 2025–2026 <span className="font-semibold text-slate-500">Audi Automobiles</span>
+            © 2025–2026 <span className="font-semibold text-slate-500">Bhagirath</span>
           </p>
           <p className="hidden sm:block text-[11px] text-slate-400">
             Powered by <span className="font-bold text-slate-600">astute</span><span className="font-bold" style={{ color: '#f59e0b' }}>BRIDGE</span>

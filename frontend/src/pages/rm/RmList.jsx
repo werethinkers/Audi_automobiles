@@ -25,11 +25,10 @@ const COLUMNS = [
       </div>
     )
   },
-  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'part_no', header: 'Part No.', render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'unit_of_measurement', header: 'UOM', render: v => <span className="font-semibold text-slate-600">{v || '—'}</span> },
   { key: 'minimum_stock', header: 'Min Safety Stock', render: v => v ? <span className="font-mono text-sm font-bold text-slate-600">{v}</span> : <span className="text-slate-300">—</span> },
-  { key: 'lead_time_days', header: 'Lead Time', render: v => v ? <span className="text-slate-600">{v} days</span> : <span className="text-slate-300">—</span> },
   {
     key: 'is_active', header: 'Status',
     render: v => (
