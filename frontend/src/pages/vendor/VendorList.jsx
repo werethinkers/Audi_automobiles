@@ -12,7 +12,6 @@ const COLUMNS = [
   { key: 'contact_person', header: 'Contact Person', render: v => v || <span className="text-slate-300">—</span> },
   { key: 'phone',          header: 'Phone',          render: v => v || <span className="text-slate-300">—</span> },
   { key: 'email',          header: 'Email',          render: v => v || <span className="text-slate-300">—</span> },
-  { key: 'gst_number',     header: 'GST Number',     render: v => v ? <span className="font-mono text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
   { key: 'is_active',      header: 'Status',
     render: v => <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{v ? 'Active' : 'Inactive'}</span> },
 ]
@@ -26,8 +25,7 @@ export default function VendorList() {
 
   const filtered = data?.filter(v =>
     v.name.toLowerCase().includes(search.toLowerCase()) ||
-    v.contact_person?.toLowerCase().includes(search.toLowerCase()) ||
-    v.gst_number?.toLowerCase().includes(search.toLowerCase())
+    (v.contact_person && v.contact_person.toLowerCase().includes(search.toLowerCase()))
   )
 
   const handleDelete = async () => {
@@ -56,7 +54,7 @@ export default function VendorList() {
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
-              placeholder="Search name, contact, GST..."
+              placeholder="Search name, contact..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />

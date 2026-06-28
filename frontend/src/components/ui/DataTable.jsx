@@ -64,66 +64,70 @@ export default function DataTable({ columns, data, onRowClick, loading, onEdit, 
   }
 
   return (
-    <div className="overflow-x-auto font-sans">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50 border-b border-slate-200">
-          <tr>
-            {columns.map(col => (
-              <th key={col.key} className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                {col.header}
-              </th>
-            ))}
-            {hasActions && (
-              <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-28">
-                Actions
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-slate-100">
-          {data.map((row, i) => (
-            <tr
-              key={i}
-              onClick={() => onRowClick?.(row)}
-              className={`group transition-colors duration-100 ${onRowClick ? `cursor-pointer ${rowHover}` : ''}`}
-            >
+    <div className="relative font-sans">
+      {/* Horizontal scroll wrapper — works on all screen sizes */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50 border-b border-slate-200">
+            <tr>
               {columns.map(col => (
-                <td key={col.key} className="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">
-                  {col.render ? col.render(row[col.key], row) : row[col.key]}
-                </td>
+                <th key={col.key} className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                  {col.header}
+                </th>
               ))}
               {hasActions && (
-                <td className="px-3 py-3 text-right whitespace-nowrap">
-                  <div className="row-actions inline-flex items-center gap-1">
-                    {onEdit && (
-                      <button
-                        title="Edit"
-                        onClick={e => { e.stopPropagation(); onEdit(row) }}
-                        className={`p-1.5 rounded-lg text-slate-400 ${editHover} transition-colors cursor-pointer`}
-                      >
-                        <PencilSquareIcon className="w-4 h-4" />
-                      </button>
-                    )}
-                    {onDelete && (
-                      <button
-                        title="Delete"
-                        onClick={e => { e.stopPropagation(); onDelete(row) }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </td>
+                <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-28">
+                  Actions
+                </th>
               )}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-slate-100">
+            {data.map((row, i) => (
+              <tr
+                key={i}
+                onClick={() => onRowClick?.(row)}
+                className={`group transition-colors duration-100 ${onRowClick ? `cursor-pointer ${rowHover}` : ''}`}
+              >
+                {columns.map(col => (
+                  <td key={col.key} className="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">
+                    {col.render ? col.render(row[col.key], row) : row[col.key]}
+                  </td>
+                ))}
+                {hasActions && (
+                  <td className="px-3 py-3 text-right whitespace-nowrap">
+                    <div className="row-actions inline-flex items-center gap-1">
+                      {onEdit && (
+                        <button
+                          title="Edit"
+                          onClick={e => { e.stopPropagation(); onEdit(row) }}
+                          className={`p-1.5 rounded-lg text-slate-400 ${editHover} transition-colors cursor-pointer`}
+                        >
+                          <PencilSquareIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          title="Delete"
+                          onClick={e => { e.stopPropagation(); onDelete(row) }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between">
         <span className="text-xs text-slate-400 font-medium">
           {data.length} record{data.length !== 1 ? 's' : ''}
         </span>
+        <span className="sm:hidden text-[10px] text-slate-300 font-medium">← scroll →</span>
       </div>
     </div>
   )

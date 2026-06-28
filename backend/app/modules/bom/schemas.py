@@ -43,7 +43,7 @@ class BomDetailCreate(BomDetailBase):
 class BomDetailResponse(BomDetailBase):
     bom_detail_id: UUID
     bom_id: UUID
-    rm_name: Optional[str] = None # Will be populated from RM Master
+    rm_name: Optional[str] = None
     rm_part_no: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
@@ -64,11 +64,26 @@ class BomUpdate(BaseModel):
     is_active: Optional[bool] = None
     details: Optional[List[BomDetailCreate]] = None
 
+# Full BOM response (used on the detail/edit page)
 class BomResponse(BomBase):
     bom_id: UUID
-    product_name: Optional[str] = None # Populated from Product Master
+    product_name: Optional[str] = None
     product_code: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     details: List[BomDetailResponse] = []
+    model_config = ConfigDict(from_attributes=True)
+
+# Lean BOM list response - no detail lines, just a component count
+class BomListResponse(BaseModel):
+    bom_id: UUID
+    product_id: Optional[UUID] = None
+    bom_number: str
+    description: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    product_name: Optional[str] = None
+    product_code: Optional[str] = None
+    component_count: int = 0
     model_config = ConfigDict(from_attributes=True)

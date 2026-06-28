@@ -8,7 +8,8 @@ const api = axios.create({
  
 // Attach JWT to every request
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('access_token')
+  const isPortal = config.url?.includes('/portal') || config.baseURL?.includes('/portal');
+  const token = isPortal ? localStorage.getItem('vendor_token') : localStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -18,8 +19,14 @@ api.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
+      const isPortal = err.config?.url?.includes('/portal');
+      if (isPortal) {
+        localStorage.removeItem('vendor_token')
+        window.location.href = '/vendor-portal/login'
+      } else {
+        localStorage.removeItem('access_token')
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(err)
   }

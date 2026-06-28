@@ -15,6 +15,7 @@ export const useProductList = () =>
   useQuery({
     queryKey: KEYS.products,
     queryFn: () => api.get('/bom/products').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
   })
 
 export const useProductDetail = (id) =>
@@ -32,25 +33,30 @@ export const useCreateProduct = () => {
   })
 }
 
-// -- BOMs --
+// -- BOMs (lean list - fast, paginated, no detail lines) --
 
-export const useBomList = () =>
+export const useBomList = (params = {}) =>
   useQuery({
-    queryKey: KEYS.boms,
-    queryFn: () => api.get('/bom').then(r => r.data),
+    queryKey: [...KEYS.boms, params],
+    queryFn: () => api.get('/bom/', { params }).then(r => r.data),
+    staleTime: 30 * 1000, // 30 seconds
+    keepPreviousData: true,
   })
+
+// -- BOM Detail (full - only loaded when viewing/editing a specific BOM) --
 
 export const useBomDetail = (id) =>
   useQuery({
     queryKey: KEYS.bom_detail(id),
     queryFn: () => api.get(`/bom/${id}`).then(r => r.data),
     enabled: !!id,
+    staleTime: 60 * 1000,
   })
 
 export const useCreateBom = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data) => api.post('/bom', data).then(r => r.data),
+    mutationFn: (data) => api.post('/bom/', data).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.boms }),
   })
 }

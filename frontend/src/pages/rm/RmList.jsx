@@ -14,6 +14,8 @@ import {
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 
+import BulkUploadModal from '../../components/ui/BulkUploadModal'
+
 const COLUMNS = [
   {
     key: 'icon', header: '',
@@ -23,11 +25,10 @@ const COLUMNS = [
       </div>
     )
   },
-  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'part_no', header: 'Part No.', render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'unit_of_measurement', header: 'UOM', render: v => <span className="font-semibold text-slate-600">{v || '—'}</span> },
   { key: 'minimum_stock', header: 'Min Safety Stock', render: v => v ? <span className="font-mono text-sm font-bold text-slate-600">{v}</span> : <span className="text-slate-300">—</span> },
-  { key: 'lead_time_days', header: 'Lead Time', render: v => v ? <span className="text-slate-600">{v} days</span> : <span className="text-slate-300">—</span> },
   {
     key: 'is_active', header: 'Status',
     render: v => (
@@ -43,6 +44,7 @@ export default function RmList() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [showUploadModal, setShowUploadModal] = useState(false)
   const { data, isLoading } = useRmList({ is_active: null })
   const deleteMutation = useDeleteRm()
 
@@ -75,7 +77,10 @@ export default function RmList() {
         title="Raw Material Master"
         subtitle="Manage all raw materials, part numbers and safety stock levels"
         breadcrumb={[{ label: 'Masters', href: '/dashboard' }, { label: 'Raw Materials' }]}
-        actions={[{ label: '+ Add Material', onClick: () => navigate('/rm-master/new'), primary: true }]}
+        actions={[
+          { label: '+ Add Material', onClick: () => navigate('/rm-master/new'), primary: true },
+          { label: 'Bulk Upload', onClick: () => setShowUploadModal(true) }
+        ]}
       />
 
       {/* KPI Row */}
@@ -136,6 +141,12 @@ export default function RmList() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      <BulkUploadModal
+      open={showUploadModal}
+      onClose={() => setShowUploadModal(false)}
+      />
+      
     </div>
   )
 }

@@ -29,7 +29,7 @@ async def main():
         for vendor in vendors:
             if not vendor.portal_password_hash:
                 vendor.portal_enabled = True
-                vendor.portal_username = vendor.mobile if vendor.mobile else f"vendor_{str(vendor.vendor_id)[:8]}"
+                vendor.portal_username = vendor.phone if vendor.phone else f"vendor_{str(vendor.vendor_id)[:8]}"
                 # Default password: password123
                 vendor.portal_password_hash = pwd_context.hash("password123")
                 updated += 1
