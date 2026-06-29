@@ -45,3 +45,17 @@ class VendorResponse(BaseModel):
  
     class Config:
         from_attributes = True
+
+class VendorRmResponse(BaseModel):
+    rm_id: UUID
+    name: str
+    part_no: Optional[str]
+    unit_of_measurement: str
+    standard_cost: Optional[float]
+
+    class Config:
+        from_attributes = True
+
+class VendorRmAdd(BaseModel):
+    rm_id: UUID
+    standard_cost: Optional[float] = None

@@ -87,7 +87,7 @@ export default function ActiveShipments() {
                         className="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all duration-200 shadow-sm hover:shadow"
                         title="Recreate ASN due to delay"
                       >
-                        <RotateCcw size={14} className="mr-1.5" /> Update Delay
+                        <RotateCcw size={14} className="mr-1.5" /> Update ASN
                       </button>
                     )}
                   </td>

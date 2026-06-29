@@ -150,7 +150,7 @@ async def list_asns(vendor: dict = Depends(get_current_vendor), db: AsyncSession
         } for row in rows
     ]
 
-@router.post("/asns", response_model=ASNResponse)
+@router.post("/asns", response_model=dict)
 async def submit_asn(req: ASNSubmitRequest, vendor: dict = Depends(get_current_vendor), db: AsyncSession = Depends(get_db)):
     from app.modules.vendor_portal.service import generate_asn_number
     

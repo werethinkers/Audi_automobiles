@@ -17,7 +17,13 @@ export const useVendorDetail = (id) =>
     queryFn: () => api.get(`/vendors/${id}`).then(r => r.data),
     enabled: !!id,
   })
- 
+export const useVendorMaterials = (id) =>
+  useQuery({
+    queryKey: [...KEYS.detail(id), 'materials'],
+    queryFn: () => api.get(`/vendors/${id}/materials`).then(r => r.data),
+    enabled: !!id,
+  })
+
 export const useCreateVendor = () => {
   const qc = useQueryClient()
   return useMutation({
@@ -48,6 +54,17 @@ export const useUpdateVendorAccess = () => {
     mutationFn: (data) => api.post('/admin/vendor-portal/vendor-access', data).then(r => r.data),
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: KEYS.detail(variables.vendor_id) })
+    },
+  })
+}
+
+export const useAddVendorMaterial = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ vendor_id, rm_id, standard_cost }) => 
+      api.post(`/vendors/${vendor_id}/materials`, { rm_id, standard_cost }).then(r => r.data),
+    onSuccess: (_, { vendor_id }) => {
+      qc.invalidateQueries({ queryKey: [...KEYS.detail(vendor_id), 'materials'] })
     },
   })
 }
