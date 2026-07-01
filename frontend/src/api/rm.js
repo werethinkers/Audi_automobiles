@@ -54,19 +54,3 @@ export const useDeleteRm = () => {
   })
 }
 
-export const uploadRmExcel = async (file) => {
-  const formData = new FormData()
-  formData.append("file", file)
-
-  const response = await api.post(
-    "/rm-master/upload",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  )
-
-  return response.data
-}

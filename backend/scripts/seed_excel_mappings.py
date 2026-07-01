@@ -49,7 +49,6 @@ async def seed_data():
         
         vendor_cache = {}
         rm_cache = {}
-
         for index, row in df.iterrows():
             try:
                 part_no = str(row[part_no_col]).strip()

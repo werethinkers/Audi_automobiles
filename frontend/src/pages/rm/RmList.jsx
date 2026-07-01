@@ -14,7 +14,6 @@ import {
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 
-import BulkUploadModal from '../../components/ui/BulkUploadModal'
 
 const COLUMNS = [
   {
@@ -44,7 +43,6 @@ export default function RmList() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [deleteTarget, setDeleteTarget] = useState(null)
-  const [showUploadModal, setShowUploadModal] = useState(false)
   const { data, isLoading } = useRmList({ is_active: null })
   const deleteMutation = useDeleteRm()
 
@@ -79,7 +77,6 @@ export default function RmList() {
         breadcrumb={[{ label: 'Masters', href: '/dashboard' }, { label: 'Raw Materials' }]}
         actions={[
           { label: '+ Add Material', onClick: () => navigate('/rm-master/new'), primary: true },
-          { label: 'Bulk Upload', onClick: () => setShowUploadModal(true) }
         ]}
       />
 
@@ -140,11 +137,6 @@ export default function RmList() {
         loading={deleteMutation.isPending}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
-      />
-
-      <BulkUploadModal
-      open={showUploadModal}
-      onClose={() => setShowUploadModal(false)}
       />
       
     </div>
