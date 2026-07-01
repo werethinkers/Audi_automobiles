@@ -51,8 +51,8 @@ const COLUMNS = [
       )
     }
   },
-  { key: 'description', header: 'Description', render: v => <span className="text-slate-500 text-sm">{v || '—'}</span> },
-  { key: 'remarks',     header: 'Remarks',     render: v => <span className="text-slate-400 text-xs italic">{v || '—'}</span> },
+  { key: 'description', header: 'Description', hideOnMobile: true, render: v => <span className="text-slate-500 text-sm">{v || '—'}</span> },
+  { key: 'remarks',     header: 'Remarks',     hideOnMobile: true, render: v => <span className="text-slate-400 text-xs italic">{v || '—'}</span> },
 ]
 
 export default function Ledger() {
@@ -113,7 +113,34 @@ export default function Ledger() {
             />
           </div>
         </div>
-        <DataTable columns={COLUMNS} data={filtered} loading={isLoading} />
+        <DataTable
+          columns={COLUMNS}
+          data={filtered}
+          loading={isLoading}
+          mobileCard={row => {
+            const t = (row.transaction_type || '').toLowerCase()
+            const isIn = t.includes('grn') || t.includes('receipt') || t.includes('transfer_in') || t.includes('adjustment_add')
+            const qty = Math.abs(parseFloat(row.qty) || 0)
+            return (
+              <div className="space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-800 text-[13px] truncate">{row.rm_name || row.rm_id}</p>
+                    {row.rm_part_no && <span className="font-mono text-[10px] text-green-600">{row.rm_part_no}</span>}
+                  </div>
+                  <TxIcon type={row.transaction_type} />
+                </div>
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span className={`font-black text-sm ${isIn ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {isIn ? '+' : '-'}{qty.toLocaleString()} <span className="text-xs font-medium text-slate-400">{row.uom}</span>
+                  </span>
+                  <span className="text-slate-400">{row.store_name || row.store_id}</span>
+                </div>
+                {row.created_at && <p className="text-[10px] text-slate-400">{new Date(row.created_at).toLocaleDateString('en-GB')} {new Date(row.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</p>}
+              </div>
+            )
+          }}
+        />
       </div>
     </div>
   )

@@ -78,6 +78,17 @@ export default function StoreList() {
           onRowClick={row => navigate(`/stores/${row.store_id}`)}
           onEdit={row => navigate(`/stores/${row.store_id}`)}
           onDelete={row => setDeleteTarget(row)}
+          mobileCard={row => (
+            <div className="space-y-0.5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold text-slate-800 text-[13px]">{row.store_name}</p>
+                <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  row.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}>{row.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              {row.location && <p className="text-xs text-slate-500">{row.location}</p>}
+            </div>
+          )}
         />
       </div>
 

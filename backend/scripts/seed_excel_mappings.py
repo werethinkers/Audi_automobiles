@@ -8,12 +8,14 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 
 # Setup path so we can import app modules
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# __file__ is in scripts/, so go one level up to reach backend/
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BACKEND_DIR)
 
 from app.core.database import AsyncSessionLocal
 from app.models.rm_models import RmMaster, VendorMaster, RmVendorMapping
 
-EXCEL_FILE = "Stock report (APR-26) 30.04.26.xlsx"
+EXCEL_FILE = os.path.join(BACKEND_DIR, "Stock report (APR-26) 30.04.26.xlsx")
 
 async def seed_data():
     if not os.path.exists(EXCEL_FILE):

@@ -17,8 +17,8 @@ import {
 const COLUMNS = [
   { key: 'rm_name',     header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'rm_part_no',  header: 'Part No.',       render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
-  { key: 'store_name',  header: 'Store',           render: v => <span className="text-slate-600 flex items-center gap-1.5"><BuildingStorefrontIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0"/>{v}</span> },
-  { key: 'uom',         header: 'UOM',             render: v => v || '—' },
+  { key: 'store_name',  header: 'Store',          hideOnMobile: true, render: v => <span className="text-slate-600 flex items-center gap-1.5"><BuildingStorefrontIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0"/>{v}</span> },
+  { key: 'uom',         header: 'UOM',            hideOnMobile: true, render: v => v || '—' },
   {
     key: 'current_qty', header: 'Qty',
     render: (v, row) => {
@@ -44,7 +44,7 @@ const COLUMNS = [
     }
   },
   {
-    key: 'health', header: 'Health',
+    key: 'health', header: 'Health', hideOnMobile: true,
     render: (_, row) => {
       const qty = parseFloat(row.current_qty) || 0
       const min = parseFloat(row.min_stock) || 0
@@ -138,7 +138,37 @@ export default function StockBalance() {
             </select>
           </div>
         </div>
-        <DataTable columns={COLUMNS} data={filtered} loading={isLoading} />
+        <DataTable
+          columns={COLUMNS}
+          data={filtered}
+          loading={isLoading}
+          mobileCard={row => {
+            const qty = parseFloat(row.current_qty) || 0
+            const min = parseFloat(row.min_stock) || 0
+            const isOut = qty === 0
+            const isLow = !isOut && min > 0 && qty < min
+            return (
+              <div className="space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-bold text-slate-800 text-[13px] truncate">{row.rm_name}</p>
+                  {isOut
+                    ? <span className="flex-shrink-0 bg-red-50 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Out of Stock</span>
+                    : isLow
+                    ? <span className="flex-shrink-0 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Low Stock</span>
+                    : <span className="flex-shrink-0 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">In Stock</span>
+                  }
+                </div>
+                {row.rm_part_no && <span className="font-mono text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{row.rm_part_no}</span>}
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span className={`font-black text-sm ${isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-slate-800'}`}>
+                    {qty.toLocaleString()} <span className="text-xs font-medium text-slate-400">{row.uom}</span>
+                  </span>
+                  <span>{row.store_name}</span>
+                </div>
+              </div>
+            )
+          }}
+        />
       </div>
     </div>
   )

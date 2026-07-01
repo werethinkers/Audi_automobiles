@@ -11,7 +11,7 @@ const COLUMNS = [
   { key: 'name',           header: 'Vendor Name',   render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'contact_person', header: 'Contact Person', render: v => v || <span className="text-slate-300">—</span> },
   { key: 'phone',          header: 'Phone',          render: v => v || <span className="text-slate-300">—</span> },
-  { key: 'email',          header: 'Email',          render: v => v || <span className="text-slate-300">—</span> },
+  { key: 'email',          header: 'Email',          hideOnMobile: true, render: v => v || <span className="text-slate-300">—</span> },
   { key: 'is_active',      header: 'Status',
     render: v => <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${v ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{v ? 'Active' : 'Inactive'}</span> },
 ]
@@ -71,6 +71,20 @@ export default function VendorList() {
           onRowClick={row => navigate(`/vendors/${row.vendor_id}`)}
           onEdit={row => navigate(`/vendors/${row.vendor_id}/edit`)}
           onDelete={row => setDeleteTarget(row)}
+          mobileCard={row => (
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold text-slate-800 text-[13px] truncate">{row.name}</p>
+                <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  row.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}>{row.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                {row.contact_person && <span>{row.contact_person}</span>}
+                {row.phone && <span className="font-medium text-slate-700">{row.phone}</span>}
+              </div>
+            </div>
+          )}
         />
       </div>
 

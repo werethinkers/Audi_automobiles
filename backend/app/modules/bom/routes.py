@@ -57,7 +57,7 @@ async def update_product(product_id: UUID, payload: schemas.ProductUpdate, db: A
 @router.get("/", response_model=List[schemas.BomListResponse])
 async def list_boms(
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
+    limit: int = Query(10000, ge=1, le=100000),
     search: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):

@@ -50,8 +50,8 @@ export default function GrnList() {
     { key: 'grn_number',     header: 'GRN Number',    render: v => <span className="font-mono font-bold text-blue-600">{v}</span> },
     { key: 'po_id',          header: 'PO Number',     render: v => <span className="font-semibold text-slate-800">{getPoNumber(v)}</span> },
     { key: 'vendor_id',      header: 'Vendor',        render: v => getVendor(v) },
-    { key: 'received_date',  header: 'Received Date', render: v => v ? new Date(v).toLocaleDateString('en-GB') : '—' },
-    { key: 'vehicle_number', header: 'Vehicle No.',   render: v => v || <span className="text-slate-300">—</span> },
+    { key: 'received_date',  header: 'Received Date', hideOnMobile: true, render: v => v ? new Date(v).toLocaleDateString('en-GB') : '—' },
+    { key: 'vehicle_number', header: 'Vehicle No.',   hideOnMobile: true, render: v => v || <span className="text-slate-300">—</span> },
     { key: 'grn_status',     header: 'Status',        render: v => <GrnStatusBadge status={v} /> },
   ]
 
@@ -90,6 +90,19 @@ export default function GrnList() {
           loading={isLoading}
           onRowClick={row => navigate(`/grn/${row.grn_id}`)}
           onEdit={row => navigate(`/grn/${row.grn_id}`)}
+          mobileCard={row => (
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold text-blue-600 font-mono text-[13px]">{row.grn_number}</p>
+                <GrnStatusBadge status={row.grn_status} />
+              </div>
+              <p className="text-xs text-slate-600 font-semibold">{getVendor(row.vendor_id)}</p>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>PO: <b className="text-slate-700">{getPoNumber(row.po_id)}</b></span>
+                {row.received_date && <span>{new Date(row.received_date).toLocaleDateString('en-GB')}</span>}
+              </div>
+            </div>
+          )}
         />
       </div>
     </div>

@@ -28,7 +28,7 @@ const COLUMNS = [
   { key: 'part_no', header: 'Part No.', render: v => v ? <span className="font-mono text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
   { key: 'name', header: 'Material Name', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'unit_of_measurement', header: 'UOM', render: v => <span className="font-semibold text-slate-600">{v || '—'}</span> },
-  { key: 'minimum_stock', header: 'Min Safety Stock', render: v => v ? <span className="font-mono text-sm font-bold text-slate-600">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'minimum_stock', header: 'Min Safety Stock', hideOnMobile: true, render: v => v ? <span className="font-mono text-sm font-bold text-slate-600">{v}</span> : <span className="text-slate-300">—</span> },
   {
     key: 'is_active', header: 'Status',
     render: v => (
@@ -129,6 +129,25 @@ export default function RmList() {
           onRowClick={row => navigate(`/rm-master/${row.rm_id}`)}
           onEdit={row => navigate(`/rm-master/${row.rm_id}`)}
           onDelete={row => setDeleteTarget(row)}
+          mobileCard={row => (
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-800 text-[13px] truncate">{row.name}</p>
+                  {row.part_no && (
+                    <span className="text-[10px] font-mono text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{row.part_no}</span>
+                  )}
+                </div>
+                <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  row.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}>{row.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>UOM: <b className="text-slate-700">{row.unit_of_measurement || '—'}</b></span>
+                {row.minimum_stock > 0 && <span>Min Stock: <b className="text-slate-700">{row.minimum_stock}</b></span>}
+              </div>
+            </div>
+          )}
         />
       </div>
 

@@ -241,7 +241,7 @@ export default function Layout() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* ── Top Header Bar ──────────────────────────────────── */}
-        <header className="h-24 flex-shrink-0 bg-white border-b border-slate-200/80 shadow-sm flex items-center gap-5 px-6">
+        <header className="h-14 md:h-24 flex-shrink-0 bg-white border-b border-slate-200/80 shadow-sm flex items-center gap-3 md:gap-5 px-4 md:px-6">
 
           {/* Collapse toggle (desktop) */}
           <button
@@ -272,8 +272,8 @@ export default function Layout() {
 
           {/* Right: Notifications, User, and Astute Bridge Logo */}
           <div className="flex items-center gap-6 flex-shrink-0">
-            <div className="hidden sm:flex items-center justify-center h-20 pr-3">
-              <img src="/Astute_Bridge_Logo.png" alt="Astute Bridge" className="h-20 w-auto object-contain drop-shadow-md" />
+            <div className="hidden sm:flex items-center justify-center h-10 md:h-20 pr-3">
+              <img src="/Astute_Bridge_Logo.png" alt="Astute Bridge" className="h-10 md:h-20 w-auto object-contain drop-shadow-md" />
             </div>
             <div className="h-5 w-px bg-slate-200" />
             <button className="relative w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer">
@@ -291,14 +291,14 @@ export default function Layout() {
         </header>
 
         {/* ── Page Content ───────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
           <div className="max-w-[1400px] mx-auto px-3 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
             <Outlet />
           </div>
         </main>
 
-        {/* ── Footer ─────────────────────────────────────────── */}
-        <footer className="flex-shrink-0 bg-white border-t border-slate-100 px-3 py-2 sm:px-6 sm:py-2.5 flex items-center justify-between">
+        {/* ── Footer (desktop only) ────────────────────────── */}
+        <footer className="hidden md:flex flex-shrink-0 bg-white border-t border-slate-100 px-3 py-2 sm:px-6 sm:py-2.5 items-center justify-between">
           <p className="text-[10px] sm:text-[11px] text-slate-400">
             © 2025–2026 <span className="font-semibold text-slate-500">Bhagirath</span>
           </p>
@@ -307,6 +307,38 @@ export default function Layout() {
             <span className="text-slate-300 mx-1">·</span>v1.0.0
           </p>
         </footer>
+
+        {/* ── Mobile Bottom Navigation ────────────────────────── */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-stretch z-30">
+          {[
+            { label: 'Home',      path: '/dashboard',       icon: Squares2X2Icon },
+            { label: 'Inventory', path: '/rm-master',       icon: CubeIcon },
+            { label: 'Procure',   path: '/purchase-orders', icon: DocumentTextIcon },
+            { label: 'BOM',       path: '/bom',             icon: WrenchScrewdriverIcon },
+            { label: 'More',      path: null,               icon: Bars3Icon },
+          ].map((item, i) => {
+            const Icon = item.icon
+            const isActive = item.path && (
+              location.pathname === item.path ||
+              (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
+            )
+            return (
+              <button
+                key={i}
+                onClick={item.path ? () => navigate(item.path) : () => setMobileOpen(o => !o)}
+                className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                  isActive ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-indigo-600 rounded-b-full" />
+                )}
+                <Icon className="w-5 h-5" />
+                <span className="text-[9px] font-bold uppercase tracking-wide">{item.label}</span>
+              </button>
+            )
+          })}
+        </nav>
       </div>
     </div>
   )

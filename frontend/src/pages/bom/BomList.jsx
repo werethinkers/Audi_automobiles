@@ -10,11 +10,7 @@ import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
   CogIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
 } from '@heroicons/react/24/outline'
-
-const PAGE_SIZE = 50
 
 const COLUMNS = [
   {
@@ -25,9 +21,8 @@ const COLUMNS = [
       </div>
     )
   },
-  { key: 'bom_number', header: 'BOM No.', render: v => <span className="font-bold text-slate-800">{v}</span> },
   { key: 'product_name', header: 'Product / Vehicle Model', render: v => <span className="font-semibold text-slate-700">{v || '—'}</span> },
-  { key: 'product_code', header: 'Product Code', render: v => v ? <span className="font-mono text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
+  { key: 'product_code', header: 'Product Code', hideOnMobile: true, render: v => v ? <span className="font-mono text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{v}</span> : <span className="text-slate-300">—</span> },
   {
     key: 'component_count', header: 'Components',
     render: v => (
@@ -37,7 +32,7 @@ const COLUMNS = [
       </span>
     )
   },
-  { key: 'description', header: 'Description', render: v => <span className="text-slate-400 text-xs truncate max-w-[180px] block">{v || '—'}</span> },
+  { key: 'description', header: 'Description', hideOnMobile: true, render: v => <span className="text-slate-400 text-xs truncate max-w-[180px] block">{v || '—'}</span> },
   {
     key: 'is_active', header: 'Status',
     render: v => (
@@ -51,27 +46,21 @@ const COLUMNS = [
 export default function BomList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [page, setPage] = useState(0)
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Debounce search
-  const handleSearchChange = (val) => {
-    setSearch(val)
-    clearTimeout(window._bomSearchTimer)
-    window._bomSearchTimer = setTimeout(() => {
-      setDebouncedSearch(val)
-      setPage(0)
-    }, 350)
-  }
+  const { data, isLoading } = useBomList()
 
-  const { data, isLoading, isFetching } = useBomList({
-    skip: page * PAGE_SIZE,
-    limit: PAGE_SIZE,
-    search: debouncedSearch || undefined,
+  const filtered = data?.filter(item => {
+    const matchSearch = !search ||
+      item.bom_number.toLowerCase().includes(search.toLowerCase()) ||
+      (item.product_name && item.product_name.toLowerCase().includes(search.toLowerCase())) ||
+      (item.product_code && item.product_code.toLowerCase().includes(search.toLowerCase()))
+    
+    const matchStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' ? item.is_active : !item.is_active)
+      
+    return matchSearch && matchStatus
   })
-
-  const filtered = statusFilter === 'all' ? data : data?.filter(r => statusFilter === 'active' ? r.is_active : !r.is_active)
 
   const total = data?.length || 0
   const active = data?.filter(r => r.is_active).length || 0
@@ -89,10 +78,10 @@ export default function BomList() {
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Loaded BOMs" value={total} sub={`Page ${page + 1}`} icon={DocumentDuplicateIcon} color="blue" />
+        <StatCard title="Loaded BOMs" value={total} sub="Total registered" icon={DocumentDuplicateIcon} color="blue" />
         <StatCard title="Active" value={active} sub="Currently active" icon={CheckCircleIcon} color="green" />
         <StatCard title="Inactive" value={inactive} sub="Archived / Inactive" icon={ExclamationTriangleIcon} color="amber" />
-        <StatCard title="Components" value={totalComponents} sub="Total on this page" icon={CogIcon} color="purple" />
+        <StatCard title="Components" value={totalComponents} sub="Total components" icon={CogIcon} color="purple" />
       </div>
 
       {/* Table Card */}
@@ -105,7 +94,7 @@ export default function BomList() {
               className="w-full pl-9 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
               placeholder="Search by BOM No or Product..."
               value={search}
-              onChange={e => handleSearchChange(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
             />
           </div>
           <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-white">
@@ -121,8 +110,8 @@ export default function BomList() {
               </button>
             ))}
           </div>
-          <span className="text-xs text-slate-400 font-medium hidden sm:block">
-            {isFetching && !isLoading ? 'Updating...' : `${filtered?.length ?? 0} results`}
+          <span className="text-xs text-slate-400 font-medium ml-auto hidden sm:block">
+            {filtered?.length ?? 0} result{filtered?.length !== 1 ? 's' : ''}
           </span>
         </div>
 
@@ -132,31 +121,27 @@ export default function BomList() {
           loading={isLoading}
           onRowClick={row => navigate(`/bom/${row.bom_id}`)}
           onEdit={row => navigate(`/bom/${row.bom_id}`)}
+          mobileCard={row => (
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold text-slate-800 text-[13px] leading-tight truncate">{row.product_name || '—'}</p>
+                <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  row.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}>{row.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
+                  <CogIcon className="w-3 h-3" />{row.component_count} parts
+                </span>
+                {row.product_code && (
+                  <span className="font-mono text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                    {row.product_code}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         />
-
-        {/* Pagination */}
-        <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-          <span className="text-xs text-slate-500">
-            Showing {page * PAGE_SIZE + 1}–{page * PAGE_SIZE + (data?.length || 0)} BOMs
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeftIcon className="w-4 h-4" />
-            </button>
-            <span className="text-xs font-bold text-slate-600 px-2">Page {page + 1}</span>
-            <button
-              onClick={() => setPage(p => p + 1)}
-              disabled={!data || data.length < PAGE_SIZE}
-              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRightIcon className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )

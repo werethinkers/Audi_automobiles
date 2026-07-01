@@ -67,7 +67,7 @@ export default function PoList() {
     { key: 'vendor_id',    header: 'Vendor',
       render: v => <span className="font-semibold text-slate-800">{getVendor(v)}</span>
     },
-    { key: 'order_date',   header: 'Order Date',
+    { key: 'order_date',   header: 'Order Date', hideOnMobile: true,
       render: v => v ? <span className="text-slate-600">{new Date(v).toLocaleDateString('en-GB')}</span> : '—'
     },
     { key: 'total_amount', header: 'Total Amount',
@@ -76,7 +76,7 @@ export default function PoList() {
     { key: 'status_id', header: 'Status',
       render: v => { const s = getStatus(v); return <StatusBadge statusCode={s?.code} /> }
     },
-    { key: 'actions_status', header: 'Change Status',
+    { key: 'actions_status', header: 'Change Status', hideOnMobile: true,
       render: (_, row) => (
         <select
           onClick={e => e.stopPropagation()}
@@ -125,6 +125,22 @@ export default function PoList() {
           loading={poLoading}
           onRowClick={row => navigate(`/purchase-orders/${row.po_id}`)}
           onEdit={row => navigate(`/purchase-orders/${row.po_id}`)}
+          mobileCard={row => {
+            const s = getStatus(row.status_id)
+            return (
+              <div className="space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-bold text-blue-600 font-mono text-[13px]">{row.po_number}</p>
+                  <StatusBadge statusCode={s?.code} />
+                </div>
+                <p className="text-xs text-slate-600 font-semibold">{getVendor(row.vendor_id)}</p>
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  {row.order_date && <span>{new Date(row.order_date).toLocaleDateString('en-GB')}</span>}
+                  <span className="font-bold text-slate-700">₹{parseFloat(row.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            )
+          }}
         />
       </div>
     </div>

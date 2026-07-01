@@ -33,6 +33,7 @@ export default function StationList() {
     {
       key: 'station_description',
       header: 'Description',
+      hideOnMobile: true,
       render: v =>
         v ? (
           <span className="text-slate-600 max-w-xs truncate block">
@@ -58,6 +59,7 @@ export default function StationList() {
     {
       key: 'operations',
       header: 'Operations',
+      hideOnMobile: true,
       render: (_, row) => (
         <button
           className="text-sm font-semibold text-purple-600 hover:text-purple-800 hover:underline"
@@ -141,6 +143,20 @@ export default function StationList() {
           onRowClick={row => navigate(`/stations/${row.station_id}`)}
           onEdit={row => navigate(`/stations/${row.station_id}`)}
           onDelete={row => setDeleteTarget(row)}
+          mobileCard={row => (
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-bold text-slate-800 text-[13px]">{row.station_name}</p>
+                <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  row.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}>{row.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              {row.station_code && (
+                <span className="font-mono text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{row.station_code}</span>
+              )}
+              {row.station_description && <p className="text-xs text-slate-500 truncate">{row.station_description}</p>}
+            </div>
+          )}
         />
       </div>
 
